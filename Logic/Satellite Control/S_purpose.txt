@@ -1,3 +1,5 @@
-Purpose -> Satellite absorbing information given by data.
+Purpose -> Satellite receiving information provided by R3-Robots data acquisition.
 
 Orbit -> the Sun-Synchronous Orbit (SSO)Sun-Synchronous Orbit (SSO)
+
+
