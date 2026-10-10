@@ -50,6 +50,5 @@ export default function LandingExperience() {
     <div className={styles.missionTitle}><p className={styles.eyebrow}>One planet. Connected perspectives.</p><h2>See the bigger picture.<br /><span>Make a local difference.</span></h2></div>
     <aside className={`${styles.callout} ${styles.orbitCallout}`}><span className={styles.calloutIcon} aria-hidden="true">◎</span><p className={styles.eyebrow}>Above the horizon</p><h3>A connected vision</h3><p>Imagined satellite relays connect a global mission. Telemetry is simulated in this prototype.</p></aside>
     <aside className={`${styles.callout} ${styles.groundCallout}`}><span className={styles.calloutIcon} aria-hidden="true">⌘</span><p className={styles.eyebrow}>On the ground</p><h3>Small bots. Big purpose.</h3><p>Follow simulated R3 BOTS as they navigate street routes and turn mapped waste into cleanup action.</p></aside>
-    <div className={styles.sceneFooter}><span className={styles.sceneBadge}><i />Illustrative 3D scene · not live operations</span><span className={styles.scrollHint}>Scroll to explore <span aria-hidden="true">↓</span></span></div>
   </section>;
 }
