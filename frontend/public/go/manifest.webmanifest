@@ -1,0 +1,16 @@
+{
+  "id": "/go",
+  "name": "R3AI Go",
+  "short_name": "R3AI Go",
+  "description": "Explore demo cleanup missions and keep your personal cleanup log.",
+  "start_url": "/go",
+  "scope": "/go",
+  "display": "standalone",
+  "background_color": "#f6f7f2",
+  "theme_color": "#f6f7f2",
+  "lang": "en",
+  "icons": [
+    { "src": "/go/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/go/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

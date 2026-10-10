@@ -1,0 +1,70 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--cmd-bg, #e9ece7);
+  color: var(--cmd-text, #172f29);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 600ms ease, visibility 0s;
+}
+
+.splash[data-loading="false"] {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 600ms ease, visibility 0s 600ms;
+}
+
+.splash[data-loading="false"] * { animation-play-state: paused; }
+
+.grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.35;
+  background-image: linear-gradient(var(--cmd-border, #25413724) 1px, transparent 1px), linear-gradient(90deg, var(--cmd-border, #25413724) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at center, black, transparent 70%);
+}
+
+.content { position: relative; padding: 24px; text-align: center; }
+.visual { position: relative; width: 280px; height: 280px; margin: 0 auto 30px; }
+.halo { position: absolute; inset: 35px; border-radius: 50%; background: var(--cmd-teal, #267565); filter: blur(55px); opacity: 0.12; animation: breathe 4s ease-in-out infinite; }
+.globe { position: absolute; inset: 30px; width: 220px; height: 220px; stroke: var(--cmd-accent, #176453); stroke-width: 0.7; opacity: 0.3; }
+.orbit, .orbitOuter { position: absolute; inset: 24px; border: 1px solid var(--cmd-border, #25413724); border-radius: 50%; animation: orbit 9s linear infinite; }
+.orbitOuter { inset: 0; border-style: dashed; animation-duration: 24s; animation-direction: reverse; }
+.orbit span, .orbitOuter span { position: absolute; top: 50%; left: -4px; width: 7px; height: 7px; border-radius: 50%; background: var(--cmd-accent, #176453); box-shadow: 0 0 16px var(--cmd-teal, #267565); }
+.orbitOuter span { width: 5px; height: 5px; left: -3px; opacity: 0.6; }
+.brand { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 800; letter-spacing: -3px; }
+.brand span { color: var(--cmd-accent, #176453); font-weight: 400; }
+.coordinate { position: absolute; bottom: 37px; left: 0; right: 0; font-family: monospace; font-size: 8px; letter-spacing: 1px; color: var(--cmd-muted, #4d645c); }
+.eyebrow { margin: 0 0 16px; color: var(--cmd-accent, #176453); font-size: 10px; font-weight: 700; letter-spacing: 0.24em; }
+.title { margin: 0; font-size: clamp(28px, 5vw, 40px); line-height: 1.2; font-weight: 500; letter-spacing: -1.5px; }
+.title span { color: var(--cmd-muted, #4d645c); }
+.status { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 30px; color: var(--cmd-muted, #4d645c); font-size: 12px; }
+.statusDot { width: 5px; height: 5px; border-radius: 50%; background: var(--cmd-accent, #176453); animation: breathe 2s ease-in-out infinite; }
+.track { width: 160px; height: 2px; margin: 18px auto 0; overflow: hidden; border-radius: 2px; background: var(--cmd-track, #1f3e311f); }
+.track span { display: block; width: 45%; height: 100%; background: var(--cmd-accent, #176453); animation: scan 1.8s ease-in-out infinite; }
+.footer { position: absolute; bottom: max(28px, env(safe-area-inset-bottom)); left: 32px; right: 32px; display: flex; justify-content: space-between; gap: 16px; color: var(--cmd-muted, #4d645c); font-size: 9px; letter-spacing: 0.15em; opacity: 0.7; }
+
+@keyframes orbit { to { transform: rotate(360deg); } }
+@keyframes breathe { 50% { opacity: 0.4; } }
+@keyframes scan { from { transform: translateX(-110%); } to { transform: translateX(330%); } }
+
+@media (max-height: 650px) {
+  .visual { width: 220px; height: 220px; margin-bottom: 20px; }
+  .globe { inset: 20px; width: 180px; height: 180px; }
+  .status { margin-top: 20px; }
+  .footer { bottom: 14px; }
+}
+
+@media (max-width: 480px) { .footer { left: 20px; right: 20px; font-size: 7px; } }
+@media (max-height: 480px) { .visual { display: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .splash, .splash[data-loading="false"] { transition: none; }
+  .orbit, .orbitOuter, .halo, .statusDot, .track span { animation: none; }
+  .track span { width: 100%; opacity: 0.5; }
+}

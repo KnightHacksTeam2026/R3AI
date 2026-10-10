@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none">
+  <defs>
+    <linearGradient id="top" x1="28" y1="27" x2="67" y2="51" gradientUnits="userSpaceOnUse"><stop stop-color="#D6FFF0"/><stop offset="1" stop-color="#69CDB1"/></linearGradient>
+    <linearGradient id="front" x1="20" y1="39" x2="49" y2="76" gradientUnits="userSpaceOnUse"><stop stop-color="#43BBA0"/><stop offset="1" stop-color="#187665"/></linearGradient>
+    <linearGradient id="side" x1="75" y1="39" x2="47" y2="77" gradientUnits="userSpaceOnUse"><stop stop-color="#258C79"/><stop offset="1" stop-color="#104C45"/></linearGradient>
+    <linearGradient id="tire" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#42545A"/><stop offset="1" stop-color="#111F26"/></linearGradient>
+    <linearGradient id="head" x1="40" y1="15" x2="65" y2="33" gradientUnits="userSpaceOnUse"><stop stop-color="#F0FFF9"/><stop offset="1" stop-color="#ADCFC5"/></linearGradient>
+    <radialGradient id="shadow"><stop stop-color="#092E28" stop-opacity=".3"/><stop offset="1" stop-color="#092E28" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="49" cy="81" rx="39" ry="10" fill="url(#shadow)"/>
+  <!-- Far wheels and undercarriage. -->
+  <path d="m22 57 29-16 25 15v12L48 83 22 69Z" fill="#172D32"/>
+  <ellipse cx="72" cy="64" rx="8" ry="11" fill="url(#tire)" transform="rotate(24 72 64)"/>
+  <ellipse cx="73" cy="64" rx="4" ry="6" fill="#718A8C" transform="rotate(24 73 64)"/>
+  <ellipse cx="73" cy="64" rx="2" ry="3" fill="#263F44" transform="rotate(24 73 64)"/>
+  <!-- Three shaded faces give the collection body its depth. -->
+  <path d="M20 38 50 22 78 37 47 54Z" fill="url(#top)" stroke="#B2EBD7" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="m20 38 27 16v23L20 61Z" fill="url(#front)" stroke="#237E6B" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="m47 54 31-17v24L47 77Z" fill="url(#side)" stroke="#155C50" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="m24 39 23 13 27-15" stroke="#E8FFF5" stroke-opacity=".85" stroke-width="1.3" stroke-linecap="round"/>
+  <!-- Recessed collection hatch and chassis bumper. -->
+  <path d="m29 38 21-11 18 10-21 12Z" fill="#226F60"/>
+  <path d="m32 38 18-9 15 8-18 10Z" fill="#2D8F77"/>
+  <path d="m35 37 15-7 12 6" stroke="#65BBA0" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="m21 57 26 15 30-16v5L47 79 21 64Z" fill="#253C40"/>
+  <path d="m24 60 20 11m7 1 23-13" stroke="#6E8C87" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Front camera panel, headlights, and a small side vent. -->
+  <path d="m25 45 17 10v8L25 53Z" fill="#143E3A"/>
+  <path d="m28 49 4 2v3l-4-2Zm9 5 3 2v3l-3-2Z" fill="#D5FFCB"/>
+  <path d="m57 53 12-7m-12 11 12-7m-12 11 12-7" stroke="#103E39" stroke-width="2" stroke-linecap="round"/>
+  <path d="m71 44 3-2v3l-3 2Z" fill="#C4F98C"/>
+  <!-- Sensor mast and sculpted camera head. -->
+  <path d="M51 31V20" stroke="#253E40" stroke-width="4" stroke-linecap="round"/>
+  <path d="m40 17 14-7 13 7-14 8Z" fill="url(#head)" stroke="#B5DBCE" stroke-linejoin="round"/>
+  <path d="m40 17 13 8v11l-13-8Z" fill="#C5E5D9"/>
+  <path d="m53 25 14-8v11l-14 8Z" fill="#497A70"/>
+  <path d="m43 21 7 4v6l-7-4Z" fill="#183D3D"/>
+  <ellipse cx="46.5" cy="26" rx="1.6" ry="2.2" transform="rotate(-25 46.5 26)" fill="#7DE9DF"/>
+  <path d="m57 26 6-3" stroke="#B5F3D3" stroke-width="2" stroke-linecap="round"/>
+  <path d="M56 10V6" stroke="#2B6459" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="56" cy="5" r="2" fill="#ADF080"/>
+  <!-- Near wheels with inset metallic hubs. -->
+  <ellipse cx="25" cy="65" rx="8" ry="11" fill="url(#tire)" transform="rotate(-24 25 65)"/>
+  <ellipse cx="23" cy="65" rx="4.5" ry="6.5" fill="#8BA6A3" transform="rotate(-24 23 65)"/>
+  <ellipse cx="23" cy="65" rx="2.2" ry="3.2" fill="#355453" transform="rotate(-24 23 65)"/>
+  <ellipse cx="54" cy="77" rx="8" ry="11" fill="url(#tire)" transform="rotate(24 54 77)"/>
+  <ellipse cx="55" cy="77" rx="4.5" ry="6.5" fill="#8BA6A3" transform="rotate(24 55 77)"/>
+  <ellipse cx="55" cy="77" rx="2.2" ry="3.2" fill="#355453" transform="rotate(24 55 77)"/>
+  <path d="m19 61 2-3m30 14 3-3" stroke="#A2B9B3" stroke-opacity=".5" stroke-width="1.3" stroke-linecap="round"/>
+</svg>
