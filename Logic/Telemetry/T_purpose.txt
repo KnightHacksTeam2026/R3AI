@@ -1,1 +1,4 @@
 Purpose -> How will I integrate the Robot and Satellite data transfer?
+
+Initially it will become spatially aware, building a map on what he sees, and from there he will use that previously made map as a reference line to a find path of best fit, to optimize the path to use the least amount of effort. 
+Feedback based data 
