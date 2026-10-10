@@ -1,1 +1,15 @@
 Earth Class Robot - Waste Allocation Load Lifter.
+
+
+
+How will they see?
+How will they move?
+How will they send the data to the satellite?
+How will they move in the biosphere?
+    Marine
+    Terrestrial
+    Aerial work together. 
+How it will deal when its approaching weight-limit?
+Will it send signals to the Satellite to also alert the Locals to contribute the waste collection with the robot in the specific location?
+How do we prevent theft?
+    Assume no one will be rob the bot.
