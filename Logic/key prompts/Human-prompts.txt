@@ -1,0 +1,22 @@
+These are some prompts I gave AI, to follow up with our mission statement development;
+
+I’m currently participating in a hackathon where several companies are sponsoring the following challenges:
+
+- Hugging Face: AI detection.
+- Adobe: Prettiest hack.
+- NextEra Energy: Spot management and data analysis.
+- OneEthos: Addressing local environmental challenges through meaningful community engagement and measurable impact.
+
+Our team is developing a system that connects ground robots, satellites, and a community-facing website to identify, map, and coordinate trash collection.
+
+The concept involves robots operating on Earth’s surface to scan their surroundings, locate waste, collect it, and transport it to a local waste disposal center. The robots would also transmit observations and collection data through satellite communication to our platform, allowing users to see where waste has been detected, what has been collected, and which areas still need attention.
+
+Local communities would be able to contribute by reporting waste, participating in cleanup efforts, and tracking progress. This connects space technology with a practical environmental challenge: improving our understanding of where waste accumulates and coordinating its removal.
+
+We would also like to explore relevant environmental and public-health datasets to help prioritize cleanup locations and assess potential benefits for communities and ecosystems. We want to distinguish measurable cleanup results from broader impacts that would require additional evidence.
+
+We plan to develop the project collaboratively through GitHub, using Python for the underlying logic, data processing, and simulations, and JavaScript for website interactivity. The website would feature a Google Earth–style interface alongside a dashboard showing detected waste, collection progress, outstanding tasks, community contributions, and other relevant statistics across monitored locations.
+
+For now, help us sharpen the mission statement and align the project’s goals with these four sponsor challenges. We want a clear, cohesive purpose that guides our technical decisions and defines what we can realistically demonstrate during the hackathon.
+
+Once that foundation is established, I’ll share more about my specific role, which focuses on the logistics and architecture of telemetry between the robots, satellites, and website.
