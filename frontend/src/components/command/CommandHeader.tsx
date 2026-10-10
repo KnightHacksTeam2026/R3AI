@@ -3,7 +3,23 @@ import GlassPanel from "./GlassPanel";
 import ThemeToggle from "./ThemeToggle";
 import type { Theme } from "./types";
 
-export default function CommandHeader({ theme, onThemeChange, area }: { theme: Theme; onThemeChange: (theme: Theme) => void; area: string }) {
+type HeaderProps = { variant: "landing" } | { variant?: "command"; theme: Theme; onThemeChange: (theme: Theme) => void; area: string };
+
+export default function CommandHeader(props: HeaderProps) {
+  if (props.variant === "landing") return (
+    <GlassPanel className="command-nav-surface flex items-center justify-between gap-3 px-3 py-2 sm:px-4">
+      <Link href="/" aria-label="R3AI home" className="flex min-w-0 items-center gap-3">
+        <span className="command-go-brand" aria-hidden="true">r3</span>
+        <span className="command-nav-identity"><span className="block text-sm font-semibold">R3AI</span><span className="command-nav-subtitle mt-0.5 block text-[10px] text-[var(--cmd-muted)]">Recognize. Recover. Restore.</span></span>
+      </Link>
+      <nav aria-label="Main navigation" className="flex shrink-0 items-center gap-1 border-l border-[var(--cmd-border)] pl-2 text-xs sm:pl-3">
+        <Link href="/" aria-current="page" className="flex min-h-11 items-center rounded-xl bg-[var(--cmd-soft)] px-3 font-semibold text-[var(--cmd-accent)]">Home</Link>
+        <Link href="/command" className="flex min-h-11 items-center rounded-xl px-3 text-[var(--cmd-muted)] transition-colors hover:bg-[var(--cmd-hover)] hover:text-[var(--cmd-text)]">Command</Link>
+        <Link href="/go" className="flex min-h-11 items-center rounded-xl px-3 text-[var(--cmd-muted)] transition-colors hover:bg-[var(--cmd-hover)] hover:text-[var(--cmd-text)]">Go</Link>
+      </nav>
+    </GlassPanel>
+  );
+  const { theme, onThemeChange, area } = props;
   return (
     <GlassPanel className="command-nav-surface flex items-center justify-between gap-3 px-3 py-2 sm:px-4">
       <div className="flex min-w-0 items-center gap-3">
