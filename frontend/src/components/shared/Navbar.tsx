@@ -7,8 +7,8 @@ import { usePathname } from "next/navigation";
 export default function Navbar() {
     const pathname = usePathname();
 
-    // Command and Go provide navigation within their own app shells.
-    if (pathname === "/command" || pathname.startsWith("/command/") || pathname === "/go" || pathname.startsWith("/go/")) {
+    // Landing, Command, and Go provide navigation within their own app shells.
+    if (pathname === "/" || pathname === "/command" || pathname.startsWith("/command/") || pathname === "/go" || pathname.startsWith("/go/")) {
         return null;
     }
 
