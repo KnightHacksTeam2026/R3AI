@@ -1,0 +1,1 @@
+# Saves telemetry into SQLite without losing original message data

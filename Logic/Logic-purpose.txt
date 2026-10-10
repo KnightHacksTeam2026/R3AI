@@ -29,7 +29,6 @@ Capacity of the robot, how much weight can we handle with the Robot.
 Nap sack problem.
 
 
-
 Consider these 2 issues...
 Knapsack problem -> Combination of items that approach the weight limit but don't exceed.
 Greedy method -> inefficient.

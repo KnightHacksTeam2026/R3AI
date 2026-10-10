@@ -3,7 +3,7 @@ Earthling Class Robot - Waste Allocation Load Lifter.
 Algorithm Trajectory
     1. Path Optimization 
         Dijkstra
-    Storage -> Scan it -> Identify object's characteristics ->  Collect -> 
+    2. Storage -> Scan it -> Identify object's characteristics ->  Collect it -> 
 
     
 

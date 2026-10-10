@@ -1,0 +1,1 @@
+// A compatible TypeScript receiver on R3-SITE.

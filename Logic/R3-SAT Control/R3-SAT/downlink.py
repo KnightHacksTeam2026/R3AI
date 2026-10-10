@@ -1,0 +1,1 @@
+# Retrieves pending telemetry, transmits JSON, and processes acknowledgments
