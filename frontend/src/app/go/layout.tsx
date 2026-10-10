@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "R3AI Go | Explore cleanup routes near you",
   description: "Find cleanup routes, explore your neighborhood, and keep a personal cleanup log with R3AI Go.",
   manifest: "/go/manifest.webmanifest",
-  appleWebApp: { capable: true, title: "R3AI Go", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "R3AI Go", statusBarStyle: "black-translucent" },
   icons: { icon: "/go/icon-192.png", apple: "/go/icon-180.png" },
 };
 

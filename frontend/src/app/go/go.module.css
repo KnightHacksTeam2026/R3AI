@@ -1,3 +1,10 @@
+/* Match the document canvas to Go, including overscroll and iOS safe areas. */
+:global(html):has(.appPage), :global(body):has(.appPage),
+:global(html):has(.loading), :global(body):has(.loading) {
+  background: #f6f7f2;
+  color-scheme: light;
+}
+
 .downloadPage, .appPage, .loading, .installDialog {
   --go-ink: #152b24;
   --go-muted: #66786c;
