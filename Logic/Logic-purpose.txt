@@ -1,5 +1,6 @@
 Purpose -> How will the feedback between the Earthling Robots
 
+Initially it will become spatially aware, building a map on what he sees, and from there he will use that previously made map as a reference line to a find path of best fit, to optimize the path to use the least amount of effort. 
 
 for a orbital AI navigation system that does telemtry managing with bots on earth and back to the satellite to collect data from the local trash found in locations around the world to store the data and clean out the areas anywhere locally, which orbit is best?
 
