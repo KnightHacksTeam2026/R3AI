@@ -154,8 +154,8 @@ if __name__ == "__main__":
         )
         item_list.append(item)
     
-    robot = Robot(10, 10, 2, 10, 100) # 10 x 10 x 2 m^3, 100 kg
-    
+    robot = Robot(15, 15, 3, 20, 100) # 10 x 10 x 2 m^3, 100 kg
+
     uncontained_items = robot.storeItems(item_list)
     print("Before:")
     for item in item_list:
