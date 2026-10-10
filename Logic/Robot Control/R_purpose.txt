@@ -1,4 +1,11 @@
-Earth Class Robot - Waste Allocation Load Lifter.
+Earthling Class Robot - Waste Allocation Load Lifter.
+
+Algorithm Trajectory
+    1. Path Optimization 
+        Dijkstra
+    Storage -> Scan it -> Identify object's characteristics ->  Collect -> 
+
+    
 
 
 
@@ -13,3 +20,4 @@ How it will deal when its approaching weight-limit?
 Will it send signals to the Satellite to also alert the Locals to contribute the waste collection with the robot in the specific location?
 How do we prevent theft?
     Assume no one will be rob the bot.
+
