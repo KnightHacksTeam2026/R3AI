@@ -1,6 +1,4 @@
-# Accepts incoming JSON packets and validates their structure
-
-# --> Communication Antenna of R3-SAT
+# R3-SAT - Communication Antenna
     # --> Accepts JSON -> Validates Fields -> confirms reception
 
 from fastapi import FastAPI

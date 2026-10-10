@@ -1,7 +1,6 @@
-# R3-SAT — Main Satellite Controller
-# -> One functioning satellite telemetry system.
-
-# Connects receiving, storage, and downlink operations.
+# R3-SAT - Main Satellite Controller
+    # -> One functioning satellite telemetry system.
+    # Connects -> receiving -> storage -> downlink operations.
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI

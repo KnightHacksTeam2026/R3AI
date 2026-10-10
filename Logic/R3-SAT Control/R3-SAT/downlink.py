@@ -1,8 +1,7 @@
-# R3-SAT — Satellite Telemetry Downlink
-    # -> R3-SAT's transmitter to the ground station.
-        # -> Retrieve telemetry stored in SQLite and sned it to the R3-WEB in JSON format.
-
-    # Sends stored JSON telemetry to R3-WEB.
+# R3-SAT - Satellite Telemetry Downlink
+    # Workflow -> R3-SAT's transmitter to the ground station.
+        # Retrieve telemetry stored in SQLite and sned it to the R3-WEB in JSON format.
+             # Sends stored JSON telemetry to R3-WEB.
 
 import os
 import httpx

@@ -1,5 +1,5 @@
-# R3-SAT — Satellite Telemetry Storage
-    # Stores validated R3-BOT JSON messages in SQLite without losing original message data.
+# R3-SAT - Satellite Telemetry Storage
+    # Workflow -> Stores validated R3-BOT JSON messages in SQLite without losing original message data.
 
 import sqlite3
 import json
