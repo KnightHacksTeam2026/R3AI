@@ -20,14 +20,6 @@ class Item:
         # Weight tracking
         self.weight: int = weight
 
-    @property
-    def volume(self):
-        return self.x_dim * self.y_dim * self.z_dim
-
-    @property
-    def distance(self):
-        return (self.x_loc**2 + self.y_loc**2) ** (1/2)
-
     def __str__(self):
         return f"Item(item dimensions=({self.x_dim} m, {self.y_dim} m, {self.z_dim} m), item location=({self.x_loc} m, {self.y_loc} m), item weight={self.weight} kg)"
 

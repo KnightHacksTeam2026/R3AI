@@ -28,10 +28,6 @@ class Robot:
         # List of item the robot has
         self.contained_items: list[Item] = []
 
-    @property
-    def packing_area(self):
-        return self.x_dim * self.y_dim
-
     def __str__(self):
         return f"Robot(available space=({self.x_available} m, {self.y_available} m), z limit={self.z_dim} m, available weight={self.available_weight} kg, battery life={self.current_life} V)"
 
@@ -41,37 +37,6 @@ class Robot:
         self.y_available = self.y_dim
         self.available_weight = self.weight_capacity
         self.contained_items = []
-
-    def best_orientation_for_2d_space(self, item: Item):
-        '''Return the rotation that best fits the remaining 2D space and z limit.'''
-        if item.weight > self.available_weight:
-            return None
-
-        # Store the best orientation and remaining space
-        best_orientation = None
-        best_remaining_space = None
-        for orientation in item.orientations():
-            x_dim, y_dim, z_dim = orientation
-            if x_dim <= self.x_available and y_dim <= self.y_available and z_dim <= self.z_dim:
-                remaining_space = (
-                    self.x_available - x_dim,
-                    self.y_available - y_dim)
-                if best_remaining_space is None or remaining_space > best_remaining_space:
-                    best_remaining_space = remaining_space
-                    best_orientation = orientation
-
-        return best_orientation
-
-    def isWithinZLimit(self, item: Item):
-        '''Helper function that determines if the item is within the z limit'''
-        return (
-            item.x_dim < self.z_dim or
-            item.y_dim < self.z_dim or
-            item.z_dim < self.z_dim)
-
-    def fits(self, item: Item):
-        '''Determine whether the item fits in the remaining 2D space and z limit.'''
-        return self.best_orientation_for_2d_space(item) is not None
 
     def storeItem(self, item: Item, orientation=None):
         '''Store one item using the 2D packing model and return whether it was stored.'''
@@ -105,12 +70,12 @@ class Robot:
         dp[0][start_state] = 0
 
         for i in range(1, item_count + 1):
-            item = item_list[i - 1]
+            item = item_list[i-1]
             
             # Iterate through each state after adding an item to the robot
             # State: represents the state of the robot at that time (x, y, weight)
             # Count: represents how good that state is (almost like a rating)
-            for state, count in dp[i - 1].items():
+            for state, count in dp[i-1].items():
                 x_available, y_available, available_weight = state
 
                 existing_skip = dp[i].get(state, -1)
@@ -154,15 +119,19 @@ class Robot:
 
         # Go backwards and plan out the items that were chosen
         selected_plan = []
+        unstored_items = []
         current_state = best_state
         for i in range(item_count, 0, -1):
             previous_state, orientation = parent[i][current_state]
-            if orientation is not None:
-                selected_plan.append((i - 1, orientation))
+            
+            # If orientation is valid, then add to plan, else add to unstored
+            if orientation is not None: selected_plan.append((i-1, orientation))
+            else: unstored_items.append(item_list[i-1])
+            
+            # Update state to the previous state (backwards logic)
             current_state = previous_state
 
         # Go forward storing the items you found in the selected plan
-        unstored_items = []
         for i, orientation in reversed(selected_plan):
             item = item_list[i]
             if not self.storeItem(item, orientation):
