@@ -5,6 +5,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.responses import RedirectResponse
 
 # Import R3-SAT modules
 from receiver import app as receiver_app
@@ -30,9 +31,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Redirect R3-SAT homepage to API documentation
+@app.get("/", include_in_schema=False)
+def homepage():
+    return RedirectResponse(url="/docs")
+
 
 # Add the R3-BOT receiver to the main application
-app.mount("/", receiver_app)
+app.mount("/bot", receiver_app)
 
 
 # Request format for simulated contact control

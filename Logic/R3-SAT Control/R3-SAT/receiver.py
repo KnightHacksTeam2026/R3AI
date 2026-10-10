@@ -1,5 +1,5 @@
 # R3-SAT - Communication Antenna
-    # --> Accepts JSON -> Validates Fields -> confirms reception
+    # Workflow -> Accepts JSON -> Validates Fields -> confirms reception
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field

@@ -1,0 +1,21 @@
+
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "R3-SAT — Run & Debug",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "main:app",
+        "--host", "127.0.0.1",
+        "--port", "8000",
+        "--app-dir", "${workspaceFolder}/Logic/R3-SAT Control/R3-SAT"
+      ],
+      "cwd": "${workspaceFolder}/Logic/R3-SAT Control/R3-SAT",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}
