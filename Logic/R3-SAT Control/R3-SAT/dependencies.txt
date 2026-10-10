@@ -1,0 +1,18 @@
+1. Receiver dependency;
+
+    fastapi -> Creates the API endpoint to receive JSON from R3-BOT
+    uvicorn -> Runs the FastAPI server
+
+2. Downlink dependency;
+    httpx -> Sends JSON Telemtry to R3-WEB via HTTP.
+
+Once everything installed do this!
+    Generate a -> Requirements.txt
+
+    & "..\..\..\.venv\Scripts\python.exe" -m pip freeze > requirements.txt
+
+Like that you can just run...
+
+     pip install -r requirements.txt
+
+to install all the dependencies at once.

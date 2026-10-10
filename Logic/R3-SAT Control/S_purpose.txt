@@ -1,0 +1,36 @@
+Purpose -> Satellite receive information given by data.
+
+Orbit -> the Sun-Synchronous Orbit (SSO)Sun-Synchronous Orbit (SSO)
+
+ - Data collected
+    # Location 
+    # Object dimensions and weight
+
+ - Format of data files
+    # CSV -> Steady Storage Efficiency.
+    # JSON -> Transient Network Agility
+
+Flow of Data.
+1. R3-Bot -> (Transient JSON Alerts): Once the bot has scanned a determined amount of waste, it fires a rapid, transient JSON packet to the satellite (e.g., "Object picked up right now").
+
+2. R3-SAT -> (Steady CSV Collector): The satellite receives these transient JSON inputs, strips away the repetitive keys to save processing memory, and appends the raw numbers into a steady CSV log file stored onboard.
+
+3. The Ground Station (Steady to Transient): When the satellite passes over the ground station, it dumps the steady CSV file. The web server parses that CSV and turns it back into a transient JSON API stream to instantly update the dashboard maps and graphs.
+
+In layman terms:
+R3-BOT -> R3-SAT -> R3-WEB Server. 
+
+Compatibility of Data Flow from R3-SAT to R3-SITE Server.
+    Website Languages;
+    Type-script, 
+    Framework nexst.js
+    structure progressive web application - typescript
+    Map API - Map-libre.js [interactive map]
+
+"""
+
+
+Updated path R3-BOT [JSON] -> R3-SAT [SQLite] -> R3-WEB [JSON].
+    1. Use JSON for commmunication from R3-BOT to R3-SAT
+    2. SQLite for R3-SAT storage -> Extreme portabiliity and simplicity
+    3. JSON for downlink to Next.js
