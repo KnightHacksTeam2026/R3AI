@@ -35,11 +35,11 @@ export default function HomePage() {
           <div className={styles.manifestoBottom}><p>Technology gives us perspective.<br />People give it purpose.</p><Link href="/go" className={styles.textButton}>Find your first step <span aria-hidden="true">↗</span></Link></div>
         </section>
         <section className={styles.questions} id="questions" tabIndex={-1} aria-labelledby="questions-heading">
-          <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>Before you start</p><h2 id="questions-heading">A few things to know.</h2></div></div>
-          <div className={styles.questionList}>
-            <details open><summary>Is this a live cleanup service?</summary><p>This is an interactive prototype. Command shows a simulated robot fleet, and Go includes sample cleanup listings. They demonstrate the project’s direction, not verified cleanup operations. Check access and conditions before visiting any location.</p></details>
-            <details><summary>Which app should I try first?</summary><p>Start with Command to understand the robot side of R3AI: select a bot and inspect its route and telemetry. Choose Go if you want to explore the community experience: open a route, review its details, and save it.</p></details>
-            <details><summary>Do I need to install anything or share my location?</summary><p>Both apps open in your browser. Go can optionally be added to your home screen. You can explore the map without sharing your location; use “Locate me” only if you want to center it on your position.</p></details>
+          <div className={styles.questionsHeading}><p className={styles.eyebrow}>Before you start</p><h2 id="questions-heading">Three things to know.</h2></div>
+          <div className={styles.questionGrid}>
+            <article><span>01</span><h3>It’s a prototype.</h3><p>Robot missions and cleanup routes are samples—not live operations. Check conditions before visiting.</p></article>
+            <article><span>02</span><h3>Choose your side.</h3><p>Command shows the robots. Go shows the community cleanup routes.</p></article>
+            <article><span>03</span><h3>Nothing is required.</h3><p>Both open in your browser. Installation and location sharing stay optional.</p></article>
           </div>
         </section>
         <section className={styles.closing}><div className={styles.closingRings} aria-hidden="true">{Array.from({ length: 4 }, (_, index) => <span key={index} />)}</div><p className={styles.eyebrow}>Your first step</p><h2>Meet the fleet.<br />Then find your route.</h2><div className={styles.actions}><Link href="/command" className={styles.primaryButton}>Explore the Command demo <span aria-hidden="true">↗</span></Link><Link href="/go" className={styles.textButton}>Explore routes in Go <span aria-hidden="true">→</span></Link></div></section>
@@ -68,12 +68,12 @@ function RecognitionSamples() {
 function ExplorePaths() {
   return <section className={styles.platform} id="platform" tabIndex={-1} aria-label="Choose between R3AI Command and R3AI Go">
     <article className={`${styles.platformPane} ${styles.commandPane}`}>
-      <div className={styles.paneMeta}><span>01 / Robot side</span><span>Observe</span></div>
+      <div className={styles.paneMeta}><span>01 / Robot side</span></div>
       <div className={styles.commandSignal} aria-hidden="true"><i /><i /><i /><svg viewBox="0 0 64 64"><path d="M32 12v7M27 8h10" /><rect x="15" y="19" width="34" height="27" rx="10" /><path d="M15 27h-5v12h5M49 27h5v12h-5M24 52h16M32 46v6" /><circle cx="25" cy="31" r="3" /><circle cx="39" cy="31" r="3" /><path d="M25 39h14" /></svg></div>
       <div className={styles.paneCopy}><p className={styles.eyebrow}>R3AI Command</p><h2>See the mission<br />through the bot.</h2><p>Watch scans become mapped cleanup routes.</p><Link href="/command">Open Command <span aria-hidden="true">→</span></Link></div>
     </article>
     <article className={`${styles.platformPane} ${styles.goPane}`}>
-      <div className={styles.paneMeta}><span>02 / People side</span><span>Act</span></div>
+      <div className={styles.paneMeta}><span>02 / People side</span></div>
       <div className={styles.goRoute} aria-hidden="true"><svg viewBox="0 0 180 180"><path d="M26 142C43 91 64 127 83 87s39-18 46-49" /><circle cx="26" cy="142" r="7" /><circle cx="83" cy="87" r="7" /><path d="M143 33c0 18-14 31-14 31s-14-13-14-31a14 14 0 1 1 28 0Z" /><circle cx="129" cy="33" r="4" /></svg></div>
       <div className={styles.paneCopy}><p className={styles.eyebrow}>R3AI Go</p><h2>Find a route.<br />Move it forward.</h2><p>Explore sample cleanups and save your next step.</p><Link href="/go">Open Go <span aria-hidden="true">→</span></Link></div>
     </article>

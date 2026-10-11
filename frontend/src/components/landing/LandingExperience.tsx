@@ -46,8 +46,8 @@ export default function LandingExperience() {
     <div className={styles.heroCopy}>
       <p className={styles.eyebrow}><span />Robotics · Maps · Community cleanup</p>
       <h1>A cleaner planet.<br /><span>A shared mission.</span></h1>
-      <p className={styles.heroDescription}>R3AI is a project connecting robot-assisted cleanup with community action. Explore the robot fleet in Command, or discover cleanup routes with Go.</p>
-      <div className={styles.actions}><a className={styles.primaryButton} href="#mission">See how R3AI works <span aria-hidden="true">↓</span></a><a className={styles.textButton} href="#platform">Choose where to explore <span aria-hidden="true">→</span></a></div>
+      <p className={styles.heroDescription}>See both sides of cleanup: follow the robot fleet in Command, then explore community routes in Go.</p>
+      <div className={`${styles.actions} ${styles.heroActions}`}><a className={styles.primaryButton} href="#mission">See how R3AI works <span aria-hidden="true">↓</span></a><a className={`${styles.textButton} ${styles.heroSecondary}`} href="#platform">Choose where to explore <span aria-hidden="true">→</span></a></div>
       <p className={styles.heroNote}>Interactive prototype · Simulated fleet and sample routes</p>
     </div>
     <div className={styles.missionTitle}><p className={styles.eyebrow}>One planet. Connected perspectives.</p><h2>See the bigger picture.<br /><span>Make a local difference.</span></h2></div>
