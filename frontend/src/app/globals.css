@@ -14,12 +14,8 @@
   --color-foreground: var(--foreground);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+:root { color-scheme: light; --surface: #f8faf5; --surface-soft: #e8eee5; --muted: #5d7064; --border: #cbd8ce; --accent: #24694e; }
+:root[data-theme="dark"] { color-scheme: dark; --background: #101c19; --foreground: #eaf3ec; --surface: #172923; --surface-soft: #21392f; --muted: #afc5b8; --border: #355046; --accent: #b5e3c8; }
 
 body {
   background: var(--background);

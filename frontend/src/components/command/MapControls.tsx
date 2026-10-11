@@ -1,6 +1,8 @@
 import GlassPanel from "./GlassPanel";
+import type { ReactNode } from "react";
 
-export default function MapControls({ showWaste, setShowWaste, showRoute, setShowRoute, showBots, setShowBots, onZoomIn, onZoomOut, onRecenter, onFocus }: {
+export default function MapControls({ status, showWaste, setShowWaste, showRoute, setShowRoute, showBots, setShowBots, onZoomIn, onZoomOut, onRecenter, onFocus }: {
+  status?: ReactNode;
   showWaste: boolean; setShowWaste: (v: boolean) => void; showRoute: boolean; setShowRoute: (v: boolean) => void; showBots: boolean; setShowBots: (v: boolean) => void; onZoomIn: () => void; onZoomOut: () => void; onRecenter: () => void; onFocus: () => void;
 }) {
   const layers = [
@@ -8,7 +10,8 @@ export default function MapControls({ showWaste, setShowWaste, showRoute, setSho
     { label: "Selected route", checked: showRoute, change: setShowRoute },
     { label: "R3 BOTS", checked: showBots, change: setShowBots },
   ];
-  return <GlassPanel className="flex items-center gap-1 p-1.5 text-xs">
+  return <GlassPanel className="flex max-w-full flex-wrap items-center gap-1 p-1.5 text-xs">
+    {status && <div className="mr-1 border-r border-[var(--cmd-border)] pr-1">{status}</div>}
     <button type="button" onClick={onZoomOut} className="command-map-button rounded-xl" aria-label="Zoom out">−</button>
     <button type="button" onClick={onZoomIn} className="command-map-button rounded-xl" aria-label="Zoom in">+</button>
     <button type="button" onClick={onFocus} className="min-h-11 rounded-xl px-2 hover:bg-[var(--cmd-hover)]">Focus bot</button>

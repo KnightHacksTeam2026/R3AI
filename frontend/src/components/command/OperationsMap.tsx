@@ -196,7 +196,8 @@ const OperationsMap = forwardRef<OperationsMapHandle, Props>((props, ref) => {
       const instance = map.current;
       if (!instance) return;
       const desktop = instance.getContainer().clientWidth >= 1024;
-      const padding = desktop ? { top: 210, bottom: 100, left: 365, right: 365 } : { top: 180, bottom: instance.getContainer().clientHeight * 0.45, left: 30, right: 30 };
+      const sideInset = Math.min(320, Math.max(280, instance.getContainer().clientWidth * 0.24)) + 44;
+      const padding = desktop ? { top: 118, bottom: 100, left: sideInset, right: sideInset } : { top: 180, bottom: instance.getContainer().clientHeight * 0.45, left: 30, right: 30 };
       // Overseas territories can span most of the globe; use the label center then.
       if (place.bounds && place.bounds[1][0] - place.bounds[0][0] < 150) instance.fitBounds(place.bounds, { padding, maxZoom: place.kind === "country" ? 6 : 12, duration: 1400 });
       else instance.flyTo({ center: place.center, zoom: place.kind === "country" ? 4 : 11, padding: 0, offset: desktop ? [0, 0] : [0, -instance.getContainer().clientHeight * 0.16], duration: 1400 });
@@ -216,7 +217,8 @@ const OperationsMap = forwardRef<OperationsMapHandle, Props>((props, ref) => {
         instance.flyTo({ center: [bot.longitude, bot.latitude], zoom: 15, padding: 0, offset: [0, -height * 0.18], duration: 1400 });
         return;
       }
-      instance.fitBounds(bounds, { absolutePadding: true, padding: { top: 180, bottom: 120, left: 380, right: 380 }, maxZoom: 16, duration: 1400 });
+      const sideInset = Math.min(320, Math.max(280, instance.getContainer().clientWidth * 0.24)) + 44;
+      instance.fitBounds(bounds, { absolutePadding: true, padding: { top: 118, bottom: 100, left: sideInset, right: sideInset }, maxZoom: 16, duration: 1400 });
     },
   }), []);
 
@@ -256,12 +258,6 @@ const OperationsMap = forwardRef<OperationsMapHandle, Props>((props, ref) => {
 
   return <div className="absolute inset-0" data-map-status={mapStatus} inert={mapStatus === "loading"}>
     <div ref={container} style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} aria-label="Interactive global operations globe. Drag to rotate; scroll or pinch to zoom. Select a ground robot to view its mapped and cleaned waste areas." />
-    <div className="command-glass pointer-events-none absolute left-1/2 top-36 z-[1] hidden -translate-x-1/2 gap-3 rounded-full px-4 py-2 text-[10px] xl:flex" aria-label="Map legend">
-      {showBots && <span><i className="command-legend-dot ground" />Ground bot</span>}
-      {showWaste && <><span><i className="command-legend-dot waste" />Remaining</span><span><i className="command-legend-dot collected" />Cleaned</span></>}
-      {showRoute && <span>Route: solid traveled · dashed planned</span>}
-      {!showBots && !showWaste && !showRoute && <span>All mission layers hidden</span>}
-    </div>
     {mapStatus === "error" && <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center p-4"><div className="command-glass pointer-events-auto max-w-xs rounded-2xl px-5 py-4 text-center text-sm"><p role="alert">{errorMessage}</p><button type="button" onClick={onRetry} className="command-primary-button mt-3">Retry map</button></div></div>}
   </div>;
 });

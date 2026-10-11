@@ -12,6 +12,17 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+:global(html[data-theme="dark"]) .explorer { --ink: var(--foreground); --muted: #afc5b8; --green: var(--accent); background: var(--background); }
+:global(html[data-theme="dark"]) :is(.sheet, .mapNotice, .areaPill, .install, .zoom, .mapControls > button, .locationButton) { background: var(--surface); color: var(--foreground); border-color: var(--border); }
+:global(html[data-theme="dark"]) :is(.search, .filters button, .locationCard, .sampleNote, .close, .saveButton, .skeleton, .activityStats, .headingIcon, .logForm input, .logForm select, .logForm textarea) { background: var(--surface-soft); color: var(--foreground); border-color: var(--border); }
+:global(html[data-theme="dark"]) :is(.tabs, .routeCard, .stats, .stats > div + div, .sheetFooter, .logEntry, .zoom button + button) { border-color: var(--border); }
+:global(html[data-theme="dark"]) :is(.kicker, .tabs button, .locationCard p, .listHeader > span, .listHint, .routeCard, .routeCategory, .routeMeta, .routeBody small, .sheetFooter, .categoryLabel, .subtitle, .stats span, .description, .finePrint, .empty, .empty p, .activityStats span, .logEntry small, .logEntry p, .mapControls button) { color: var(--muted); }
+:global(html[data-theme="dark"]) .routeBody strong { color: var(--foreground); }
+:global(html[data-theme="dark"]) :is(.tabs button.tabActive, .routeCard:hover) { background: var(--surface-soft); color: var(--accent); }
+:global(html[data-theme="dark"]) .filters button[aria-pressed="true"] { background: #32694f; color: #fff; }
+:global(html[data-theme="dark"]) :is(.textButton, .locationIcon, .mapNotice button, .notice button) { color: var(--accent); }
+:global(html[data-theme="dark"]) .notice { background: #453b25; color: #f0d9a2; }
+:global(html[data-theme="dark"]) .mapCanvas :global(.maplibregl-ctrl-attrib) { background: var(--surface); color: var(--muted); }
 .explorer button, .explorer input, .explorer select, .explorer textarea { font: inherit; }
 .explorer button { cursor: pointer; }
 .explorer button:disabled { cursor: wait; opacity: .6; }
@@ -25,7 +36,7 @@
 .mapCanvas :global(.maplibregl-ctrl-top-left) { top: auto; bottom: 12px; left: auto; right: 12px; }
 .mapCanvas :global(.maplibregl-ctrl-attrib) { background: #ffffffdd; font-size: 10px; }
 .mapCanvas :global(.maplibregl-canvas):focus-visible { outline-offset: -4px; }
-.header { position: absolute; top: 0; left: 0; right: 0; padding: calc(23px + env(safe-area-inset-top)) 30px 26px; display: flex; align-items: center; justify-content: space-between; pointer-events: none; background: linear-gradient(#f8faf6e8, #f8faf600); }
+.header { position: absolute; top: calc(20px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: min(1200px, calc(100% - 40px)); }
 .header a, .header button { pointer-events: auto; }
 .wordmark { display: flex; gap: 9px; align-items: center; font-size: 30px; font-weight: 700; letter-spacing: -1.5px; }
 .logo { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 12px; background: #266c50; color: #f1ffeb; font-size: 25px; line-height: 1; font-weight: 600; }
@@ -133,7 +144,6 @@
 .logEntry p { font-size: 12px; line-height: 1.6; color: #6c7d60; overflow-wrap: anywhere; }
 
 @media (max-width: 799px) {
-  .header { padding: calc(14px + env(safe-area-inset-top)) 18px 24px; }
   .wordmark { font-size: 27px; }
   .logo { width: 33px; height: 33px; font-size: 23px; }
   .liveLabel { display: none; }
@@ -166,3 +176,8 @@
   .mapCanvas :global(.maplibregl-ctrl-top-left) { bottom: 4px; }
 }
 @media (prefers-reduced-motion: reduce) { .sheet { transition: none; } }
+@media (max-width: 639px) {
+  .header { top: calc(12px + env(safe-area-inset-top)); width: calc(100% - 24px); }
+  .install { width: 44px; padding: 0; }
+  .install span { display: none; }
+}
