@@ -176,6 +176,7 @@ function missionToSlice(area: DemoArea, areaIndex: number, mission: BackendMissi
       route,
       distanceM: 0,
       missionStatus: "ready",
+      missionIssue: runs.length ? undefined : "human-only",
       collection: { start, runs, runIndex: 0 },
     },
     observations,
@@ -221,18 +222,14 @@ export function createDemoState(withHistory = true): DemoState {
   };
 }
 
-export async function hydrateDemoState(withHistory = true): Promise<DemoState> {
-  try {
-    const slices = await Promise.all(DEMO_AREAS.map(async (area, areaIndex) => missionToSlice(area, areaIndex, await requestMission(area))));
-    const observations = slices.flatMap(slice => slice.observations);
-    return {
-      bots: slices.map(slice => slice.bot),
-      observations,
-      humanRequiredItems: observations.filter(item => item.humanRequired),
-    };
-  } catch {
-    return createDemoState(withHistory);
-  }
+export async function hydrateDemoState(): Promise<DemoState> {
+  const slices = await Promise.all(DEMO_AREAS.map(async (area, areaIndex) => missionToSlice(area, areaIndex, await requestMission(area))));
+  const observations = slices.flatMap(slice => slice.observations);
+  return {
+    bots: slices.map(slice => slice.bot),
+    observations,
+    humanRequiredItems: observations.filter(item => item.humanRequired),
+  };
 }
 
 export async function regenerateBotMission(botId: string): Promise<MissionSlice> {

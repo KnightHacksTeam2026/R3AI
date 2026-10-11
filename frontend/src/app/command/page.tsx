@@ -37,6 +37,7 @@ export default function CommandPage() {
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [mobilePanel, setMobilePanel] = useState<"bots" | "mission" | "telemetry" | null>(null);
   const [resettingBotId, setResettingBotId] = useState<string | null>(null);
+  const [scanUnavailableBotIds, setScanUnavailableBotIds] = useState<string[]>([]);
   const robot = demo.bots.find(bot => bot.id === selectedBotId)!;
   const assigned = useMemo(() => demo.observations.filter(item => item.botId === selectedBotId), [demo.observations, selectedBotId]);
   const runningCount = demo.bots.filter(bot => bot.missionStatus === "running").length;
@@ -45,8 +46,15 @@ export default function CommandPage() {
   useEffect(() => {
     let cancelled = false;
     hydrateDemoState().then(next => {
-      if (!cancelled) setDemo(next);
-    }).catch(() => { /* Fallback state already rendered. */ });
+      if (cancelled) return;
+      setDemo(next);
+      setScanUnavailableBotIds([]);
+    }).catch(() => {
+      if (cancelled) return;
+      const fallback = createDemoState();
+      setDemo(fallback);
+      setScanUnavailableBotIds(fallback.bots.map(bot => bot.id));
+    });
     return () => { cancelled = true; };
   }, []);
 
@@ -117,22 +125,24 @@ export default function CommandPage() {
   }
 
   async function resetMission() {
-    setResettingBotId(selectedBotId);
+    const botId = selectedBotId;
+    setResettingBotId(botId);
     try {
-      const mission = await regenerateBotMission(selectedBotId);
+      const mission = await regenerateBotMission(botId);
       setDemo(current => replaceMissionInState(current, mission));
-      refreshingBots.current.delete(selectedBotId);
+      setScanUnavailableBotIds(current => current.filter(id => id !== botId));
+      refreshingBots.current.delete(botId);
     } catch {
-      // Keep this scan and its human-required list intact if the backend fails.
+      setScanUnavailableBotIds(current => current.includes(botId) ? current : [...current, botId]);
     } finally {
-      setResettingBotId(current => current === selectedBotId ? null : current);
+      setResettingBotId(current => current === botId ? null : current);
     }
   }
 
   const botsPanel = <RobotPanel bots={demo.bots} mapCenter={mapCenter} selectedId={selectedBotId} onSelect={selectBot} />;
   const missionPanel = place
     ? <PlacePanel place={place} bots={demo.bots} observations={demo.observations} onBot={selectBot} onClose={closePlace} />
-    : <MissionPanel observations={assigned} robot={robot} onToggleMission={toggleMission} onReset={resetMission} resetting={resettingBotId === selectedBotId} />;
+    : <MissionPanel observations={assigned} robot={robot} onToggleMission={toggleMission} onReset={resetMission} resetting={resettingBotId === selectedBotId} scanUnavailable={scanUnavailableBotIds.includes(selectedBotId)} />;
   const botTelemetryPanel = <BotTelemetryPanel robot={robot} />;
 
   return (
