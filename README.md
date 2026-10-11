@@ -86,11 +86,6 @@ Important behaviors already implemented here include:
 - multi-load collection planning
 - path ordering through `getPath(...)`
 
-### [`Logic/R3-SAT/`](./Logic/R3-SAT)
-Prototype satellite / telemetry pipeline components.
-
-These files represent a communication concept for relaying robot telemetry, buffering messages, and forwarding mission data. They are part of the architectural direction of the project, but the current frontend demo is able to run as a local simulation without requiring the satellite path.
-
 ## How mission planning works
 
 The current robot workflow in the repository centers on these ideas:
@@ -129,7 +124,7 @@ What is already represented well:
 What is still prototype / evolving:
 
 - live deployment integration for the AI inference path
-- real-world telemetry and robot hardware integration
+- real-world robot hardware integration
 - production-grade persistence and operator workflows
 - full end-to-end environmental metrics
 
@@ -180,4 +175,4 @@ R3AI is an AI-assisted cleanup simulation platform that combines:
 - **route-based collection execution**
 - **interactive mission visualization**
 
-It is a strong prototype foundation for a system that could eventually bridge waste detection, robot autonomy, and environmental restoration analytics.
+This software serves as an excellent prototype foundation for advanced simulation systems focused on waste detection and robot autonomy. Its underlying logic can be adapted across industries, enabling autonomous systems to identify and address inefficiencies, improve item collection, and reduce human involvement in routine tasks. By enabling broader automation adoption, it can boost productivity and reduce unnecessary human tasks across diverse sectors.
