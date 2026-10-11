@@ -1,0 +1,402 @@
+[
+  {
+    "image": "0obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:07.568718+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 0,
+      "expected_kind": "unspecified"
+    },
+    "detected_count": 0,
+    "detections": []
+  },
+  {
+    "image": "2obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:10.688186+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 2,
+      "expected_kind": "unspecified"
+    },
+    "detected_count": 0,
+    "detections": []
+  },
+  {
+    "image": "3obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:13.283721+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 3,
+      "expected_kind": "unspecified"
+    },
+    "detected_count": 0,
+    "detections": []
+  },
+  {
+    "image": "4obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:15.888654+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 4,
+      "expected_kind": "unspecified"
+    },
+    "detected_count": 1,
+    "detections": [
+      {
+        "detection_index": 1,
+        "label": "bottle",
+        "confidence": 0.8468,
+        "bbox_xyxy_px": [
+          640.83,
+          1218.46,
+          1025.6,
+          2176.16
+        ],
+        "bbox_width_px": 384.77,
+        "bbox_height_px": 957.7,
+        "bbox_area_fraction": 0.03022,
+        "waste_status": "needs_review",
+        "bbox_width_cm_est": 3.86,
+        "bbox_height_cm_est": 9.61,
+        "bbox_long_axis_cm_est": 9.61,
+        "bbox_short_axis_cm_est": 3.86,
+        "bbox_long_axis_m_est": 0.0961,
+        "bbox_short_axis_m_est": 0.0386,
+        "length_m": null,
+        "width_m": null,
+        "mass_kg": null,
+        "size_method": "reference_bottle_2d_bbox_scale_estimate"
+      }
+    ]
+  },
+  {
+    "image": "6obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:18.457416+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 6,
+      "expected_kind": "unspecified"
+    },
+    "detected_count": 2,
+    "detections": [
+      {
+        "detection_index": 1,
+        "label": "bottle",
+        "confidence": 0.8395,
+        "bbox_xyxy_px": [
+          352.37,
+          1273.38,
+          797.81,
+          2262.16
+        ],
+        "bbox_width_px": 445.44,
+        "bbox_height_px": 988.78,
+        "bbox_area_fraction": 0.03612,
+        "waste_status": "needs_review",
+        "bbox_width_cm_est": 4.47,
+        "bbox_height_cm_est": 9.93,
+        "bbox_long_axis_cm_est": 9.93,
+        "bbox_short_axis_cm_est": 4.47,
+        "bbox_long_axis_m_est": 0.0993,
+        "bbox_short_axis_m_est": 0.0447,
+        "length_m": null,
+        "width_m": null,
+        "mass_kg": null,
+        "size_method": "reference_bottle_2d_bbox_scale_estimate"
+      },
+      {
+        "detection_index": 2,
+        "label": "bottle",
+        "confidence": 0.2936,
+        "bbox_xyxy_px": [
+          1341.64,
+          1408.01,
+          2081.66,
+          1679.97
+        ],
+        "bbox_width_px": 740.03,
+        "bbox_height_px": 271.96,
+        "bbox_area_fraction": 0.01651,
+        "waste_status": "needs_review",
+        "bbox_width_cm_est": 7.43,
+        "bbox_height_cm_est": 2.73,
+        "bbox_long_axis_cm_est": 7.43,
+        "bbox_short_axis_cm_est": 2.73,
+        "bbox_long_axis_m_est": 0.0743,
+        "bbox_short_axis_m_est": 0.0273,
+        "length_m": null,
+        "width_m": null,
+        "mass_kg": null,
+        "size_method": "reference_bottle_2d_bbox_scale_estimate"
+      }
+    ]
+  },
+  {
+    "image": "7obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:21.028782+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 7,
+      "expected_kind": "unspecified"
+    },
+    "detected_count": 1,
+    "detections": [
+      {
+        "detection_index": 1,
+        "label": "bottle",
+        "confidence": 0.824,
+        "bbox_xyxy_px": [
+          461.12,
+          1650.16,
+          840.12,
+          2601.25
+        ],
+        "bbox_width_px": 379.0,
+        "bbox_height_px": 951.09,
+        "bbox_area_fraction": 0.02956,
+        "waste_status": "needs_review",
+        "bbox_width_cm_est": 3.8,
+        "bbox_height_cm_est": 9.55,
+        "bbox_long_axis_cm_est": 9.55,
+        "bbox_short_axis_cm_est": 3.8,
+        "bbox_long_axis_m_est": 0.0955,
+        "bbox_short_axis_m_est": 0.038,
+        "length_m": null,
+        "width_m": null,
+        "mass_kg": null,
+        "size_method": "reference_bottle_2d_bbox_scale_estimate"
+      }
+    ]
+  },
+  {
+    "image": "8obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:23.491131+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 8,
+      "expected_kind": "unspecified"
+    },
+    "detected_count": 2,
+    "detections": [
+      {
+        "detection_index": 1,
+        "label": "bottle",
+        "confidence": 0.8394,
+        "bbox_xyxy_px": [
+          455.57,
+          1704.4,
+          842.78,
+          2639.98
+        ],
+        "bbox_width_px": 387.21,
+        "bbox_height_px": 935.57,
+        "bbox_area_fraction": 0.02971,
+        "waste_status": "needs_review",
+        "bbox_width_cm_est": 3.89,
+        "bbox_height_cm_est": 9.39,
+        "bbox_long_axis_cm_est": 9.39,
+        "bbox_short_axis_cm_est": 3.89,
+        "bbox_long_axis_m_est": 0.0939,
+        "bbox_short_axis_m_est": 0.0389,
+        "length_m": null,
+        "width_m": null,
+        "mass_kg": null,
+        "size_method": "reference_bottle_2d_bbox_scale_estimate"
+      },
+      {
+        "detection_index": 2,
+        "label": "bottle",
+        "confidence": 0.4694,
+        "bbox_xyxy_px": [
+          1859.56,
+          1384.36,
+          2294.77,
+          2461.63
+        ],
+        "bbox_width_px": 435.21,
+        "bbox_height_px": 1077.27,
+        "bbox_area_fraction": 0.03845,
+        "waste_status": "needs_review",
+        "bbox_width_cm_est": 4.37,
+        "bbox_height_cm_est": 10.81,
+        "bbox_long_axis_cm_est": 10.81,
+        "bbox_short_axis_cm_est": 4.37,
+        "bbox_long_axis_m_est": 0.1081,
+        "bbox_short_axis_m_est": 0.0437,
+        "length_m": null,
+        "width_m": null,
+        "mass_kg": null,
+        "size_method": "reference_bottle_2d_bbox_scale_estimate"
+      }
+    ]
+  },
+  {
+    "image": "b1obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:26.355928+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 1,
+      "expected_kind": "bottle"
+    },
+    "detected_count": 1,
+    "detections": [
+      {
+        "detection_index": 1,
+        "label": "bottle",
+        "confidence": 0.4406,
+        "bbox_xyxy_px": [
+          1042.44,
+          1270.66,
+          1844.5,
+          3294.88
+        ],
+        "bbox_width_px": 802.05,
+        "bbox_height_px": 2024.23,
+        "bbox_area_fraction": 0.13316,
+        "waste_status": "needs_review",
+        "bbox_width_cm_est": 8.05,
+        "bbox_height_cm_est": 20.32,
+        "bbox_long_axis_cm_est": 20.32,
+        "bbox_short_axis_cm_est": 8.05,
+        "bbox_long_axis_m_est": 0.2032,
+        "bbox_short_axis_m_est": 0.0805,
+        "length_m": null,
+        "width_m": null,
+        "mass_kg": null,
+        "size_method": "reference_bottle_2d_bbox_scale_estimate"
+      }
+    ]
+  },
+  {
+    "image": "c1obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:28.828221+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 1,
+      "expected_kind": "can"
+    },
+    "detected_count": 0,
+    "detections": []
+  },
+  {
+    "image": "l1obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:31.537493+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 1,
+      "expected_kind": "lunchbox"
+    },
+    "detected_count": 0,
+    "detections": []
+  },
+  {
+    "image": "p1obj.jpeg",
+    "timestamp_utc": "2026-10-11T07:16:34.154210+00:00",
+    "model_id": "Ultralytics/YOLO26/yolo26n.pt",
+    "image_width_px": 3024,
+    "image_height_px": 4032,
+    "calibration": {
+      "reference_image": "b1obj.jpeg",
+      "reference_length_cm": 20.32,
+      "reference_box_long_axis_px": 2024.23,
+      "pixels_per_cm": 99.6176,
+      "verified_for_this_image": false
+    },
+    "test_label": {
+      "expected_count": 1,
+      "expected_kind": "plastic_object"
+    },
+    "detected_count": 0,
+    "detections": []
+  }
+]
