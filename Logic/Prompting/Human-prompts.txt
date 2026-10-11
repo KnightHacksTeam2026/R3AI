@@ -20,3 +20,7 @@ We plan to develop the project collaboratively through GitHub, using Python for 
 For now, help us sharpen the mission statement and align the project’s goals with these four sponsor challenges. We want a clear, cohesive purpose that guides our technical decisions and defines what we can realistically demonstrate during the hackathon.
 
 Once that foundation is established, I’ll share more about my specific role, which focuses on the logistics and architecture of telemetry between the robots, satellites, and website.
+
+Integration.
+
+now lets run and validate them together this is what we have so far... then I already have the files of the website of miguel so I'll later feed everyting together and start integrating the R3-SAT with the R3-WEB, and then finally will be integrating the R3-BOT that javier currently working on..

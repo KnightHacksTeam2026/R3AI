@@ -1,0 +1,186 @@
+/* Match the document canvas to Go, including overscroll and iOS safe areas. */
+:global(html):has(.appPage), :global(body):has(.appPage),
+:global(html):has(.loading), :global(body):has(.loading) {
+  background: #f6f7f2;
+  color-scheme: light;
+}
+
+.downloadPage, .appPage, .loading, .installDialog {
+  --go-ink: #152b24;
+  --go-muted: #66786c;
+  --go-paper: #f6f7f2;
+  --go-green: #247a60;
+  color: var(--go-ink);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+  background: var(--go-paper);
+}
+.downloadPage *, .appPage *, .installDialog * { box-sizing: border-box; }
+.downloadPage button, .appPage button, .installDialog button { cursor: pointer; }
+.downloadPage button:disabled, .appPage button:disabled { cursor: wait; opacity: .65; }
+.downloadPage :focus-visible, .appPage :focus-visible, .installDialog :focus-visible { outline: 3px solid #247a60; outline-offset: 4px; }
+.downloadPage a, .appPage a { text-decoration: none; color: inherit; }
+.loading { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; font-size: 14px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; font-size: 21px; letter-spacing: -.6px; }
+.brandMark { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 13px; background: #c5f47b; color: #101c19; font-size: 16px; font-weight: 850; letter-spacing: -1px; }
+.brandGo { color: #247a60; font-weight: 500; }
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.6px; color: var(--go-green); line-height: 1.6; }
+.primaryButton, .limeButton { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 13px 18px; border: 0; border-radius: 14px; font-size: 14px; font-weight: 650; }
+.primaryButton { color: #f6f7f2; background: #152b24; width: 100%; }
+.primaryButton:hover { background: #254c3b; }
+.limeButton { background: #c5f47b; color: #152b24; }
+.textButton { display: inline-flex; align-items: center; gap: 8px; padding: 8px 0; border: 0; background: transparent; color: #247a60; font-weight: 700; font-size: 12px; text-align: left; }
+.textButton:hover { color: #153f2b; }
+.downloadPage { min-height: 100dvh; overflow: hidden; }
+.desktopHeader { max-width: 1220px; padding: 30px 36px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.desktopHeader nav { display: flex; align-items: center; gap: 32px; font-size: 13px; color: #596d60; }
+.desktopHeader nav a { display: flex; align-items: center; gap: 9px; min-height: 44px; }
+.downloadGrid { max-width: 1220px; margin: 24px auto 52px; padding: 0 36px; display: grid; grid-template-columns: 1.15fr 1fr; gap: 64px; align-items: center; }
+.downloadIntro { padding: 28px 0; }
+.releaseTag { display: inline-flex; align-items: center; gap: 10px; color: #47775e; font-size: 10px; font-weight: 700; letter-spacing: 1.8px; }
+.releaseTag > span { width: 6px; height: 6px; border-radius: 50%; background: #83b96a; }
+.downloadIntro h1 { margin: 23px 0; font-size: clamp(38px, 4.4vw, 64px); font-weight: 600; letter-spacing: -3px; line-height: 1.12; }
+.downloadIntro h1 span { color: #5d806b; }
+.downloadIntro > p { font-size: 15px; line-height: 1.8; max-width: 400px; color: #66786c; }
+.storeBadges { margin: 29px 0 12px; display: flex; flex-wrap: wrap; gap: 10px; }
+.storeBadges > div { display: flex; align-items: center; gap: 13px; border: 1px solid #d3ddd0; background: #edf0e8; border-radius: 13px; padding: 10px 18px; color: #486153; }
+.storeBadges small { display: block; font-size: 8px; letter-spacing: 1.4px; }
+.storeBadges strong { display: block; font-size: 17px; font-weight: 650; margin-top: 2px; }
+.storeGlyph { font-size: 24px; }
+.downloadIntro .storeNote { font-size: 11px; margin: 0 0 26px; }
+.webInstall { max-width: 420px; border-top: 1px solid #dce3d8; padding-top: 21px; display: flex; align-items: flex-start; gap: 14px; }
+.webInstall strong { font-size: 13px; }
+.webInstall p { font-size: 12px; line-height: 1.7; color: #66786c; margin: 5px 0; overflow-wrap: anywhere; }
+.installIcon { display: grid; place-items: center; flex-shrink: 0; height: 42px; width: 42px; border-radius: 13px; background: #e0edda; color: #356b50; }
+.previewButton { margin-top: 16px; display: inline-flex; gap: 12px; align-items: center; min-height: 44px; border: 0; padding: 0; background: none; color: #66786c; font-size: 12px; }
+.phoneStage { position: relative; min-height: 670px; display: flex; align-items: center; justify-content: center; }
+.orbitOne, .orbitTwo { position: absolute; border: 1px solid #dce5d5; border-radius: 50%; height: 475px; width: 475px; background: radial-gradient(circle, #e3efdcaa, #eff3e800); }
+.orbitTwo { height: 565px; width: 565px; background: none; }
+.floatingTag { position: absolute; z-index: 2; top: 75px; right: -15px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #476650; background: #fffffc; padding: 12px 16px; border: 1px solid #e1e7dc; border-radius: 99px; box-shadow: 0 8px 24px #2642260a; }
+.phone { width: 295px; border: 7px solid #183025; border-radius: 41px; overflow: hidden; box-shadow: 0 28px 65px #1c3c2826, inset 0 0 0 2px #789c70; transform: rotate(5deg); background: #f6f7f2; position: relative; }
+.phoneNotch { width: 82px; height: 20px; border-radius: 0 0 15px 15px; background: #183025; position: absolute; top: 0; left: calc(50% - 41px); z-index: 1; }
+.phoneScreen { padding: 36px 19px 15px; }
+.phoneWordmark { font-size: 16px; font-weight: 800; }
+.phoneWordmark b { color: #247a60; }
+.phoneScreen > .eyebrow { margin-top: 26px; font-size: 7px; letter-spacing: 1px; }
+.phoneScreen h2 { font-size: 28px; line-height: 1.15; letter-spacing: -1.3px; margin: 9px 0; }
+.phoneScreen > p:not(.eyebrow) { color: #788575; font-size: 9px; margin-bottom: 22px; }
+.phonePark { overflow: hidden; background: #fffefa; border: 1px solid #e2e6db; border-radius: 18px; }
+.phonePark .parkArt { height: 154px; }
+.phonePark > div:last-child { padding: 16px 14px; }
+.phonePark small { font-size: 7px; color: #678366; letter-spacing: 1px; }
+.phonePark h3 { font-size: 15px; margin: 8px 0 6px; }
+.phonePark p { font-size: 9px; color: #718070; margin: 0; }
+.phoneMiniCard { margin-top: 14px; padding: 13px 10px; background: #eaf0e3; border-radius: 14px; display: flex; align-items: center; gap: 9px; color: #517154; }
+.phoneMiniCard strong { font-size: 9px; display: block; }
+.phoneMiniCard small { font-size: 8px; display: block; margin-top: 3px; }
+.phoneNav { display: flex; justify-content: space-around; color: #6a8367; padding-top: 23px; }
+.previewCaption { position: absolute; bottom: 6px; font-size: 10px; color: #7b8a78; }
+.downloadFooter { max-width: 1220px; margin: 0 auto; padding: 25px 36px; border-top: 1px solid #e1e6da; display: flex; justify-content: space-between; gap: 16px; color: #7b8a78; font-size: 10px; }
+.appPage { min-height: 100dvh; background: #e9eee4; }
+.mobileShell { position: relative; width: 100%; max-width: 480px; min-height: 100dvh; margin: auto; background: #f6f7f2; padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+.mobileHeader { padding: calc(19px + env(safe-area-inset-top)) 22px 17px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mobileHeader .brand { font-size: 19px; }
+.mobileHeader .brandMark { height: 33px; width: 33px; border-radius: 10px; font-size: 14px; }
+.prototype { font-size: 8px; letter-spacing: 1px; color: #6f826b; background: #e6eedd; padding: 6px 8px; border-radius: 99px; }
+.mobileContent { padding: 0 22px 26px; }
+.installCard { position: relative; display: flex; gap: 12px; background: #e7efdf; border: 1px solid #d8e4cd; border-radius: 17px; padding: 16px 26px 11px 14px; margin-bottom: 26px; }
+.installCard .installIcon { width: 35px; height: 35px; background: #d4e6c6; }
+.installCard strong { display: block; font-size: 12px; line-height: 1.5; }
+.installCard p { font-size: 10px; color: #6b7e62; margin: 4px 0 0; }
+.dismiss { position: absolute; right: 5px; top: 5px; height: 30px; width: 30px; display: grid; place-items: center; background: none; border: 0; color: #78906c; }
+.pageIntro { margin: 25px 0 28px; }
+.pageIntro h1 { margin: 10px 0; font-size: 35px; line-height: 1.13; font-weight: 650; letter-spacing: -1.6px; }
+.pageIntro > p:last-child { font-size: 12px; color: #7a8876; margin-top: 12px; line-height: 1.6; }
+.sectionHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 25px 0 14px; }
+.sectionHeading h2 { font-size: 14px; font-weight: 650; margin: 0; }
+.sectionHeading > span { font-size: 9px; background: #e6eddd; border-radius: 99px; padding: 5px 8px; color: #6e815e; white-space: nowrap; }
+.featuredMission { display: block; width: 100%; overflow: hidden; text-align: left; border: 1px solid #dfe5d7; border-radius: 22px; background: #fffefa; padding: 0; box-shadow: 0 6px 20px #25452a06; color: #152b24; }
+.parkArt { position: relative; height: 177px; overflow: hidden; background-color: #dce8cb; background-image: radial-gradient(ellipse at 8% 10%, #afc79b 0 13%, transparent 14%), radial-gradient(ellipse at 87% 89%, #aec999 0 22%, transparent 23%), radial-gradient(ellipse at 94% 8%, #bdd4a9 0 16%, transparent 17%), radial-gradient(ellipse at 10% 92%, #c9dcb5 0 20%, transparent 21%); }
+.parkLake { position: absolute; inset: 24px 22%; background: #a0c9bd; border: 6px solid #cfdfbc; border-radius: 47% 55% 42% 56%; transform: rotate(-19deg); box-shadow: 0 0 0 10px #ecedce, 0 0 0 12px #bdcfa3; }
+.parkPath { position: absolute; left: -15%; right: -15%; top: 49%; height: 7px; background: #efedcd; transform: rotate(-27deg); }
+.parkPin { position: absolute; left: 61%; top: 39%; display: grid; place-items: center; width: 45px; height: 45px; border: 4px solid #dce9cb; background: #294f3f; color: #c5f47b; border-radius: 50%; box-shadow: 0 5px 10px #2b563426; }
+.artTag { position: absolute; bottom: 11px; left: 16px; font-size: 8px; font-weight: 700; letter-spacing: 1.7px; background: #ffffffb5; border-radius: 99px; padding: 5px 9px; color: #65815b; }
+.featuredBody { position: relative; padding: 18px 42px 18px 17px; }
+.featuredBody .eyebrow { font-size: 8px; letter-spacing: 1px; }
+.featuredBody h3 { margin: 7px 0; font-size: 17px; font-weight: 650; letter-spacing: -.4px; }
+.featuredBody p { color: #7b8875; font-size: 11px; margin: 0; }
+.cardArrow { position: absolute; right: 17px; top: 40%; color: #67895d; }
+.missionList { margin-top: 15px; display: grid; gap: 10px; }
+.missionRow { width: 100%; padding: 13px 12px; display: flex; align-items: center; gap: 12px; text-align: left; border: 1px solid #e1e7d9; background: #f0f3e9; color: #253e2e; border-radius: 15px; }
+.missionRow > span:nth-child(2) { flex: 1; min-width: 0; }
+.missionRow strong { font-size: 11px; display: block; }
+.missionRow small { font-size: 9px; color: #7b8972; display: block; margin-top: 5px; }
+.missionSymbol { display: grid; place-items: center; flex-shrink: 0; width: 39px; height: 39px; border-radius: 13px; background: #dce9d2; color: #557550; }
+.disclaimer { font-size: 10px; line-height: 1.7; color: #7d8977; margin: 18px 0; }
+.bottomNav { position: fixed; z-index: 5; bottom: 0; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: space-around; width: 100%; max-width: 480px; padding: 9px 18px calc(10px + env(safe-area-inset-bottom)); background: #fdfdf8f2; backdrop-filter: blur(16px); border-top: 1px solid #e1e7d9; }
+.bottomNav button { display: grid; justify-items: center; gap: 5px; min-height: 48px; min-width: 80px; border: 0; background: transparent; color: #84927b; font-size: 9px; padding: 6px 10px; border-radius: 14px; }
+.bottomNav button.tabActive { color: #247a60; background: #eaf1e2; font-weight: 700; }
+.activeMission { background: #173c2c; color: #f6f7f2; padding: 20px; border-radius: 20px; }
+.activeMission .eyebrow { color: #b7d3a6; font-size: 8px; }
+.activeMission h2 { font-size: 19px; line-height: 1.3; margin: 11px 0 8px; }
+.activeMission p { font-size: 11px; color: #abc6a7; margin: 0 0 18px; }
+.buttonRow { display: flex; gap: 12px; align-items: center; }
+.buttonRow .limeButton { font-size: 11px; flex: 1; min-height: 43px; padding: 10px 12px; }
+.lightTextButton { background: none; border: 0; min-height: 44px; color: #e5f1db; font-size: 11px; }
+.reportForm { padding: 20px; border: 1px solid #dfe5d7; border-radius: 22px; background: #fffefa; }
+.formMission { display: flex; align-items: center; gap: 8px; color: #648158; font-size: 11px; line-height: 1.6; margin: 0 0 22px; }
+.reportForm label { display: block; font-size: 12px; font-weight: 650; margin: 20px 0; }
+.optional { font-weight: 400; color: #85917d; }
+.reportForm input, .reportForm select, .reportForm textarea { width: 100%; font: inherit; font-size: 16px; font-weight: 400; color: #203729; border: 1px solid #dce4d4; border-radius: 11px; background: #f5f7ef; padding: 13px; margin-top: 9px; }
+.reportForm textarea { resize: vertical; }
+.success { font-size: 11px; color: #247a60; line-height: 1.7; margin-top: 15px; }
+.safetyNote { display: flex; gap: 10px; background: #eaf0e2; border-radius: 14px; color: #628059; padding: 14px; align-items: flex-start; }
+.safetyNote svg { flex-shrink: 0; }
+.safetyNote p { font-size: 10px; line-height: 1.7; margin: 0; }
+.activitySummary { background: #e7efdd; border: 1px solid #d8e4ca; border-radius: 19px; padding: 20px 16px; display: flex; gap: 20px; }
+.activitySummary > div { flex: 1; }
+.activitySummary > div + div { border-left: 1px solid #cadbbd; padding-left: 20px; }
+.activitySummary strong { display: block; font-size: 30px; letter-spacing: -1px; font-weight: 650; }
+.activitySummary span { font-size: 9px; color: #778b67; }
+.emptyState { text-align: center; padding: 30px 15px; border: 1px dashed #cedac1; border-radius: 20px; color: #6d895c; }
+.emptyState > svg { margin: 0 auto 10px; }
+.emptyState h3 { font-size: 16px; }
+.emptyState p { font-size: 11px; color: #7b8874; }
+.entryList { display: grid; gap: 10px; }
+.entry { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 16px; border: 1px solid #dee6d5; background: #fffefa; }
+.entry > div { min-width: 0; }
+.entry strong { font-size: 12px; }
+.entry small { display: block; font-size: 9px; color: #7b8874; margin-top: 6px; line-height: 1.6; }
+.entry p { font-size: 11px; color: #667b5c; overflow-wrap: anywhere; margin: 9px 0 0; }
+.notice { font-size: 11px; background: #f2e9d5; color: #70572f; padding: 12px; border-radius: 12px; line-height: 1.7; }
+.previewBar { padding: 12px 20px; background: #173c2c; color: #dceace; font-size: 11px; display: flex; justify-content: center; align-items: center; gap: 24px; }
+.previewBar button { display: inline-flex; align-items: center; gap: 7px; color: #c5f47b; background: none; border: 0; min-height: 28px; font: inherit; }
+.missionSheet, .installDialog { border: 0; border-radius: 26px; width: min(440px, calc(100% - 24px)); padding: 28px; background: #f6f7f2; color: #152b24; box-shadow: 0 24px 70px #10251e40; }
+.missionSheet::backdrop, .installDialog::backdrop { background: #10251e80; backdrop-filter: blur(5px); }
+.missionSheet { position: fixed; margin: auto; }
+.missionSheet h2, .installDialog h2 { font-size: 28px; line-height: 1.15; letter-spacing: -1px; margin: 18px 0; }
+.missionSheet > p:not(.eyebrow):not(.disclaimer):not(.formMission) { font-size: 13px; color: #6d7e62; line-height: 1.8; }
+.missionSheet .primaryButton { margin-top: 18px; }
+.sheetClose { position: absolute; top: 12px; right: 12px; height: 44px; width: 44px; border: 0; background: none; display: grid; place-items: center; color: #6f8362; }
+.installDialog { padding: 0; max-height: calc(100dvh - 40px); }
+.installDialogBody { position: relative; padding: 30px; }
+.installDialog .eyebrow { margin-top: 22px; }
+.installDialog section { margin: 24px 0; }
+.installDialog section h3 { font-size: 13px; margin-bottom: 8px; }
+.installDialog section p { font-size: 12px; color: #667b5c; line-height: 1.8; }
+@media (max-width: 900px) {
+  .downloadGrid { gap: 30px; }
+  .phoneStage { transform: scale(.9); }
+  .floatingTag { right: -10px; }
+}
+@media (max-width: 700px) {
+  .desktopHeader { padding: 24px; }
+  .desktopHeader nav { gap: 16px; font-size: 11px; }
+  .downloadGrid { grid-template-columns: 1fr; margin-top: 5px; padding: 0 26px; }
+  .downloadIntro h1 { letter-spacing: -2px; }
+  .phoneStage { min-height: 610px; transform: none; }
+  .orbitOne { width: 360px; height: 360px; }
+  .orbitTwo { width: 440px; height: 440px; }
+  .floatingTag { right: 0; top: 14px; }
+  .downloadFooter { padding: 20px 26px; flex-wrap: wrap; }
+  .missionSheet { margin: auto auto max(12px, env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .phone { animation: float 9s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0) rotate(5deg); } 50% { transform: translateY(-9px) rotate(3deg); } }
+}
