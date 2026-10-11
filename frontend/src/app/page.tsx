@@ -15,6 +15,23 @@ export default function HomePage() {
             <article className={styles.step}><span>03 / RESTORE</span><h3>Bring people into the loop.</h3><p>Discover places to begin with R3AI Go and keep a personal record of your cleanup activity.</p><small>Community participation</small></article>
           </div>
         </section>
+        <section className={styles.signalSection} aria-labelledby="signal-heading">
+          <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>From orbit to street level</p><h2 id="signal-heading">Big-picture thinking.<br />Ground-level movement.</h2></div><p>A vision for connected cleanup: recognize a place, coordinate a route, and bring people into the response.</p></div>
+          <div className={styles.signalStage}>
+            <div className={styles.signalOrbit} aria-hidden="true"><span /><span /><span /><b>R3</b></div>
+            <svg className={styles.signalRoute} viewBox="0 0 1000 300" fill="none" aria-hidden="true"><path d="M80 150 C240 150 200 50 370 70 S600 270 710 210 S800 100 920 150" stroke="currentColor" strokeOpacity=".15" strokeWidth="2" /><path data-signal-path d="M80 150 C240 150 200 50 370 70 S600 270 710 210 S800 100 920 150" pathLength="1" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
+            <div className={styles.signalNodes}>
+              <article><span>01 / THE SIGNAL</span><h3>A place worth<br />paying attention to.</h3><p>Make mapped waste visible.</p></article>
+              <article><span>02 / THE RESPONSE</span><h3>Turn a point<br />into a path.</h3><p>Explore the next cleanup route.</p></article>
+              <article><span>03 / THE PEOPLE</span><h3>Make the mission<br />your own.</h3><p>Step outside with R3AI Go.</p></article>
+            </div>
+          </div>
+        </section>
+        <section className={styles.manifesto} aria-labelledby="manifesto-heading">
+          <p className={styles.eyebrow}>The scale changes. The purpose doesn’t.</p>
+          <h2 id="manifesto-heading" className={styles.manifestoWords}><span>ONE PLANET.</span><span>EVERY STREET.</span><span>ALL OF US.</span></h2>
+          <div className={styles.manifestoBottom}><p>Technology gives us perspective.<br />People give it purpose.</p><Link href="/go" className={styles.textButton}>Find your first step <span aria-hidden="true">↗</span></Link></div>
+        </section>
         <section className={styles.platform} id="platform">
           <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>Find your perspective</p><h2>One mission.<br />Two ways to take part.</h2></div><p>Zoom out to coordinate. Step outside to contribute. Discover the two sides of R3AI.</p></div>
           <div className={styles.platformCards}>

@@ -4,6 +4,9 @@
 @media (max-width: 639px) { .landingNav[data-theme] { top: calc(12px + env(safe-area-inset-top)); width: calc(100% - 24px); } }
 .globeCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .heroBackdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.starfield { position: absolute; inset: 0; }
+.star { position: absolute; width: var(--star-size); height: var(--star-size); border-radius: 50%; background: #e2ffe8; box-shadow: 0 0 7px #c5f47b70; }
+:global(html[data-theme="light"]) .star { background: #347c63; box-shadow: 0 0 5px #347c6330; }
 .auroraField { position: absolute; inset: -8%; }
 .aurora { position: absolute; width: 85%; height: 85%; border-radius: 55% 45% 65% 35% / 45% 65% 35% 55%; filter: blur(64px); opacity: .65; }
 .auroraOne { left: -35%; top: -10%; background: radial-gradient(ellipse, #5bae8660, #267b6230 42%, transparent 70%); transform: rotate(-25deg); }
@@ -48,6 +51,39 @@
 .step p { color: #64776a; font-size: 14px; line-height: 1.8; max-width: 320px; }
 .step small { display: inline-block; margin-top: 20px; background: #e8ece3; border-radius: 20px; padding: 7px 10px; color: #557060; font-size: 10px; }
 .platform { padding: 100px max(6vw, 24px); background: #15271f; }
+.signalSection { padding: 110px max(6vw, 24px) 80px; background: var(--surface-soft); color: var(--foreground); }
+.signalStage { position: relative; max-width: 1220px; margin: auto; padding-top: 230px; }
+.signalRoute { position: absolute; top: 0; width: 100%; height: 300px; color: var(--accent); overflow: visible; }
+.signalOrbit { position: absolute; top: -10px; left: calc(50% - 120px); width: 240px; height: 240px; display: grid; place-items: center; color: var(--accent); }
+.signalOrbit span { position: absolute; inset: 0; border: 1px solid var(--border); border-radius: 50%; }
+.signalOrbit span:nth-child(2) { inset: 25px; transform: rotateX(55deg) rotate(-25deg); border-color: var(--accent); }
+.signalOrbit span:nth-child(3) { inset: 45px; }
+.signalOrbit b { font-size: 48px; letter-spacing: -.08em; }
+.signalNodes { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+.signalNodes article { padding-top: 24px; border-top: 1px solid var(--border); }
+.signalNodes article > span { font-size: 10px; letter-spacing: .15em; color: var(--accent); }
+.signalNodes h3 { margin: 24px 0 12px; font-size: clamp(22px, 2.8vw, 38px); line-height: 1.1; letter-spacing: -.04em; }
+.signalNodes p { font-size: 13px; color: var(--muted); }
+.manifesto { overflow: hidden; padding: 110px max(6vw, 24px); background: var(--background); }
+.manifesto > .eyebrow { color: var(--accent); margin-bottom: 48px; }
+.manifestoWords { display: flex; flex-direction: column; font-size: clamp(44px, 10.6vw, 160px); font-weight: 600; line-height: .98; letter-spacing: -.065em; }
+.manifestoWords span { display: block; transform-origin: center; }
+.manifestoWords span:nth-child(2) { align-self: flex-end; color: var(--accent); }
+.manifestoWords span:nth-child(3) { color: transparent; -webkit-text-stroke: 1px var(--foreground); }
+.manifestoBottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; margin-top: 48px; border-top: 1px solid var(--border); padding-top: 28px; }
+.manifestoBottom p { color: var(--muted); font-size: 14px; line-height: 1.7; }
+.manifestoBottom a { color: var(--accent); }
+@media (max-width: 600px) {
+  .star:nth-child(n+41) { display: none; }
+  .signalSection, .manifesto { padding: 66px 24px; }
+  .signalStage { padding-top: 200px; }
+  .signalOrbit { width: 180px; height: 180px; left: calc(50% - 90px); }
+  .signalRoute { height: 200px; }
+  .signalNodes { grid-template-columns: 1fr; gap: 32px; }
+  .signalNodes h3 br { display: none; }
+  .manifestoWords { font-size: clamp(32px, 10vw, 60px); line-height: 1.1; }
+}
+@media (forced-colors: active) { .manifestoWords span:nth-child(3) { color: CanvasText; -webkit-text-stroke: 0; } }
 .platform .sectionHeading > p { color: #adc2b2; }
 .platformCards { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; max-width: 1220px; margin: auto; perspective: 1200px; }
 .platformCard { --spot-x: 50; --spot-y: 50; --spot-opacity: 0; position: relative; isolation: isolate; overflow: hidden; padding: 36px; border: 1px solid #c3dfcd26; border-radius: 28px; background: #1b3328; min-height: 360px; display: flex; flex-direction: column; align-items: start; }
