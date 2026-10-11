@@ -182,6 +182,8 @@
 .root :global(.command-search-submit) { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border: 0; border-radius: 8px; background: var(--cmd-accent); color: var(--cmd-accent-text); cursor: pointer; }
 .root :global(.command-search-submit):disabled { background: transparent; color: var(--cmd-muted); opacity: .5; cursor: default; }
 .root :global(.command-search-surface) input { font-size: 16px; }
+/* The rounded search container owns the input's focus indicator. */
+.root :global(.command-search-surface) input:focus-visible { outline: none; }
 .root :global(.command-search-surface) input::-webkit-search-cancel-button { display: none; }
 .root :global(.command-search-close) { display: grid; flex-shrink: 0; width: 36px; min-height: 36px; }
 .root :global(#command-search-results) { width: 100%; left: 0; background: var(--cmd-panel-solid); }

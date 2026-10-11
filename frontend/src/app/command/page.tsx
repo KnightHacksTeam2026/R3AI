@@ -149,7 +149,7 @@ export default function CommandPage() {
         </div>
         <div className="command-workspace hidden min-h-0 flex-1 lg:grid">
           <div className="command-mission-column command-panel-scroll pointer-events-auto min-h-0 max-h-full self-start overflow-y-auto rounded-[22px]">{missionPanel}</div>
-          <aside aria-label="Mission inspector" className="command-inspector command-glass pointer-events-auto flex min-h-0 max-h-full flex-col self-start overflow-hidden">
+          <aside aria-label="Mission inspector" className="command-inspector command-glass pointer-events-auto flex min-h-0 max-h-full flex-col self-start overflow-hidden rounded-[22px]">
             <div className="flex shrink-0 border-b border-[var(--cmd-border)] p-2" role="group" aria-label="Inspector view">
               {(["bots", "telemetry"] as const).map(view => <button key={view} type="button" aria-pressed={inspector === view} onClick={() => setInspector(view)} className={`min-h-11 flex-1 rounded-xl text-xs font-semibold ${inspector === view ? "bg-[var(--cmd-accent)] text-[var(--cmd-accent-text)]" : ""}`}>{view === "bots" ? `Fleet · ${demo.bots.length}` : "Bot telemetry"}</button>)}
             </div>
