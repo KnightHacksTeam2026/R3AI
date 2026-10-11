@@ -5,8 +5,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { startGlobeScene } from "./globeScene";
-import CommandHeader from "@/components/command/CommandHeader";
-import commandStyles from "@/app/command/command.module.css";
+import Navbar from "@/components/shared/Navbar";
 import styles from "./landing.module.css";
 import HeroBackdrop from "./HeroBackdrop";
 
@@ -43,7 +42,7 @@ export default function LandingExperience() {
 
   return <section ref={root} className={styles.experience} aria-label="R3AI introduction">
     <HeroBackdrop />
-    <header className={`${commandStyles.root} ${styles.landingNav}`} data-theme="dark"><CommandHeader variant="landing" /></header>
+    <header className={styles.landingNav} data-theme="shared"><Navbar /></header>
     <canvas ref={canvas} className={styles.globeCanvas} aria-hidden="true" />
     <div className={styles.heroCopy}>
       <p className={styles.eyebrow}><span />Recognize. Recover. Restore.</p>

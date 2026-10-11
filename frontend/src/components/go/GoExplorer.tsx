@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Navbar from "@/components/shared/Navbar";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import GoMap, { type GoMapHandle } from "./GoMap";
 import GoIcon from "./GoIcon";
@@ -110,8 +111,7 @@ export default function GoExplorer({ session, onSessionChange, installed, instal
   return <div className={styles.explorer}>
     <GoMap ref={map} routes={visibleRoutes} selectedId={selectedId} position={location.position} onSelect={select} onMove={setCenter} />
     <header className={styles.header}>
-      <Link href="/" className={styles.wordmark} aria-label="R3AI home"><span className={styles.logo}>r3</span><span>Go<span className={styles.wordmarkDot}>.</span></span></Link>
-      <div className={styles.headerRight}><span className={styles.liveLabel}><i />A little closer to a cleaner world</span>{!installed && <button className={styles.install} onClick={onInstall} disabled={installing}><GoIcon name="download" size={17} /><span>{installing ? "Opening…" : "Get the app"}</span></button>}</div>
+      <Navbar actions={!installed ? <button className={styles.install} onClick={onInstall} disabled={installing} aria-label={installing ? "Opening installation" : "Get the app"}><GoIcon name="download" size={17} /><span>{installing ? "Opening…" : "Get the app"}</span></button> : undefined} />
     </header>
 
     <div className={styles.areaPill}><span className={styles.areaDot} />{feed.samples ? "Exploring sample routes" : "Explore cleanup routes"}</div>

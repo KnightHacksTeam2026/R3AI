@@ -1,5 +1,4 @@
 import GlassPanel from "./GlassPanel";
-import BotIcon from "./BotIcon";
 import { distanceM, formatDistance } from "./routeGeometry";
 import type { Coordinate, RobotState } from "./types";
 
@@ -13,7 +12,6 @@ export default function RobotPanel({ bots, mapCenter, selectedId, onSelect }: {
     <p className="mb-3 text-[11px] text-[var(--cmd-muted)]">Nearest first · straight-line distance from map center</p>
     <div className="space-y-2">{nearby.map(({ bot, distance }) =>
       <button key={bot.id} type="button" aria-pressed={selectedId === bot.id} onClick={() => onSelect(bot.id)} className={`command-fleet-row flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${selectedId === bot.id ? "border-[var(--cmd-accent)] bg-[var(--cmd-accent)]/10" : "border-[var(--cmd-border)] bg-[var(--cmd-soft)] hover:bg-[var(--cmd-hover)]"}`}>
-        <span className={`command-bot-chip ${bot.type}`}><BotIcon type={bot.type} /></span>
         <div className="min-w-0 flex-1"><p className="text-xs font-semibold">{bot.id}</p><p className="mt-1 text-[10px] capitalize text-[var(--cmd-muted)]">{bot.type} · {bot.area} · {bot.status.replace("-", " ")}</p></div>
         <span className="shrink-0 text-right text-[11px] tabular-nums text-[var(--cmd-muted)]">{formatDistance(distance)}<span className="mt-1 block" aria-label={`Simulated battery ${Math.round(bot.batteryPct)} percent`}>{Math.round(bot.batteryPct)}% battery</span></span>
       </button>

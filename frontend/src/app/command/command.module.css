@@ -27,7 +27,7 @@
   -webkit-font-smoothing: antialiased;
 }
 
-.root[data-theme="dark"] {
+:global(html[data-theme="dark"]) .root {
   color-scheme: dark;
   --cmd-bg: #091312;
   --cmd-panel: rgba(15, 28, 27, 0.85);
@@ -121,7 +121,13 @@
 .root :global(.command-icon-button) { min-height: 44px; }
 .root :global(.command-mission-actions) { position: sticky; top: -1rem; z-index: 1; background: var(--cmd-panel-solid); border: 1px solid var(--cmd-border); box-shadow: inset 0 1px 0 var(--cmd-edge); border-radius: 16px; padding: 5px; margin-inline: -6px; }
 .root :global(.command-mission-actions) button { min-height: 44px; }
-.root :global(.command-scroll-frame) { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.root :global(.command-scroll-frame) { gap: 16px; padding-bottom: max(28px, env(safe-area-inset-bottom)); }
+.root :global(.command-workspace) { grid-template-columns: clamp(280px, 24vw, 320px) minmax(0, 1fr) clamp(280px, 24vw, 320px); column-gap: 24px; }
+.root :global(.command-inspector) { grid-column: 3; }
+.root :global(.command-inspector-content) > :global(.command-glass) { background: transparent; border: 0; border-radius: 0; box-shadow: none; backdrop-filter: none; }
+@media (max-width: 1023px) {
+  .root :global(.command-scroll-frame) { gap: 10px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .root *, .root *::before, .root *::after { transition: none !important; }
 }
@@ -135,24 +141,25 @@
 
 .root :global(.command-bot-chip) { display: grid; flex-shrink: 0; width: 44px; height: 44px; place-items: center; border-radius: 13px; }
 
-.root :global(.command-bot-chip):global(.ground) { color: var(--cmd-teal); background: linear-gradient(145deg, color-mix(in srgb, var(--cmd-teal) 18%, transparent), color-mix(in srgb, var(--cmd-teal) 5%, transparent)); border: 1px solid color-mix(in srgb, var(--cmd-teal) 20%, transparent); box-shadow: inset 0 1px 0 var(--cmd-reflection); }
+.root :global(.command-bot-chip):global(.ground) { background: var(--cmd-soft); border: 1px solid var(--cmd-border); }
 
 
 
-.root :global(.command-bot-marker) { display: grid; width: 48px; height: 48px; padding: 0; place-items: center; border: 2px solid #dcfff0; box-shadow: inset 0 1px 0 #fff9, 0 4px 16px #0008; cursor: pointer; color: #142923; transition: background-color 180ms ease, box-shadow 180ms ease; }
+.root :global(.command-bot-marker) { display: grid; width: 48px; height: 48px; padding: 0; place-items: center; border: 1px solid #c8cdd0; box-shadow: 0 2px 4px #0002, 0 6px 16px #0003; cursor: pointer; transition: box-shadow 180ms ease, border-color 180ms ease; }
 
-.root :global(.command-bot-marker):global(.ground) { background: linear-gradient(145deg, #effff6, #b0decc); border-radius: 16px; }
+.root :global(.command-bot-marker):global(.ground) { background: #f7f8f8; border-radius: 50%; }
 
-.root :global(.command-bot-marker) img { pointer-events: none; filter: drop-shadow(0 2px 1px #123d2d25); }
-.root :global(.command-bot-chip) img { filter: drop-shadow(0 2px 1px #123d2d20); }
-.root :global(.command-bot-marker):hover { box-shadow: inset 0 1px 0 #fff9, 0 0 0 4px #63d8c440, 0 6px 20px #0008; }
+.root :global(.command-bot-marker) img { pointer-events: none; filter: drop-shadow(0 1px 1px #0003); }
+.root :global(.command-bot-chip) img { filter: drop-shadow(0 1px 1px #0002); }
+.root :global(.command-bot-marker):hover { border-color: #202629; box-shadow: 0 0 0 3px #ffffff80, 0 6px 18px #0004; }
 
 
-.root :global(.command-bot-marker)[data-selected="true"] { border-width: 3px; box-shadow: 0 0 0 5px #fff5, 0 4px 18px #0009; z-index: 2; }
+.root :global(.command-bot-marker)[data-selected="true"] { border-color: #15191c; box-shadow: 0 0 0 2px #15191c, 0 0 0 5px #fff, 0 6px 20px #0005; z-index: 2; }
+@media (prefers-reduced-motion: reduce) { .root :global(.command-bot-marker) { transition: none; } }
 
 .root :global(.command-legend-dot) { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
 
-.root :global(.command-legend-dot):global(.ground) { background: #63d8c4; }
+.root :global(.command-legend-dot):global(.ground) { background: var(--cmd-text); }
 
 
 .root :global(.command-legend-dot):global(.waste) { background: #f2c27b; }
@@ -165,53 +172,21 @@
 
 .root :global(.command-panel-scroll) { overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--cmd-border) transparent; }
 
-/* One centered row redistributes its available space to the active search. */
-.root :global(.command-top-dock) {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: min(100%, 1200px);
-  margin-inline: auto;
-}
-.root :global(.command-nav-width) {
-  min-width: 0;
-  flex: 1 1 860px;
-  transition: flex-basis 360ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.root :global(.command-search-width) {
-  min-width: 0;
-  flex: 0 0 320px;
-  transition: flex-basis 360ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-.root :global(.command-nav-surface), .root :global(.command-search-surface) { min-height: 62px; }
-.root :global(.command-go-brand) { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px; background: #266c50; color: #f1ffeb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 29px; line-height: 1; font-weight: 600; letter-spacing: -1.5px; }
-.root :global(.command-top-dock)[data-search-active="true"] :global(.command-nav-width) { flex-basis: 620px; }
-.root :global(.command-top-dock)[data-search-active="true"] :global(.command-search-width) { flex-basis: 48%; }
-.root :global(.command-top-dock)[data-search-active="true"] :global(.command-nav-context) { display: none; }
-.root :global(.command-search-trigger), .root :global(.command-search-close), .root :global(.command-search-submit-icon) { display: none; }
-@media (min-width: 768px) and (max-width: 1099px) {
-  .root :global(.command-nav-context), .root :global(.command-nav-subtitle) { display: none; }
-  .root :global(.command-search-width) { flex-basis: 28%; }
-  .root :global(.command-top-dock)[data-search-active="true"] :global(.command-search-width) { flex-basis: 36%; }
-}
-@media (max-width: 767px) {
-  .root :global(.command-top-dock) { gap: 8px; max-width: 480px; }
-  .root :global(.command-nav-identity) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .root :global(.command-nav-context) { display: none; }
-  .root :global(.command-search-width) { flex: 0 0 62px; }
-  .root :global(.command-search-trigger) { display: grid; width: 62px; height: 62px; place-items: center; border-radius: 22px; cursor: pointer; }
-  .root :global(.command-search-surface) { display: none; }
-  .root :global(.command-top-dock)[data-search-active="true"] :global(.command-nav-width) { flex: 0 0 62px; }
-  .root :global(.command-top-dock)[data-search-active="true"] :global(.command-nav-surface) { padding: 8px; }
-  .root :global(.command-top-dock)[data-search-active="true"] :global(.command-nav-tools) { display: none; }
-  .root :global(.command-top-dock)[data-search-active="true"] :global(.command-search-width) { flex: 1 1 0%; }
-  .root :global(.command-top-dock)[data-search-active="true"] :global(.command-search-trigger) { display: none; }
-  .root :global(.command-top-dock)[data-search-active="true"] :global(.command-search-surface) { display: flex; gap: 4px; }
-  .root :global(.command-search-glyph), .root :global(.command-search-submit-label) { display: none; }
-  .root :global(.command-search-close) { display: grid; flex-shrink: 0; }
-  .root :global(.command-search-submit-icon) { display: block; }
-  .root :global(.command-search-submit) { min-height: 44px; }
-  .root :global(#command-search-results) { width: min(calc(100vw - 24px), 480px); right: 0; }
+/* Search shares the navbar surface and keeps results anchored to the input. */
+.root :global(.command-scroll-frame) { padding-top: calc(20px + env(safe-area-inset-top)); }
+.root :global(.command-top-dock) { width: 100%; }
+.root :global(.command-search-surface) { height: 44px; padding: 0 6px 0 12px; border: 1px solid var(--cmd-border); background: var(--surface-soft); border-radius: 12px; transition: border-color 150ms, box-shadow 150ms; }
+.root :global(.command-search-surface):focus-within { border-color: var(--cmd-accent); box-shadow: 0 0 0 2px var(--cmd-soft); }
+.root :global(.command-search-glyph) { display: block; flex-shrink: 0; color: var(--cmd-muted); }
+.root :global(.command-search-submit-icon) { display: block; }
+.root :global(.command-search-submit) { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border: 0; border-radius: 8px; background: var(--cmd-accent); color: var(--cmd-accent-text); cursor: pointer; }
+.root :global(.command-search-submit):disabled { background: transparent; color: var(--cmd-muted); opacity: .5; cursor: default; }
+.root :global(.command-search-surface) input { font-size: 16px; }
+.root :global(.command-search-surface) input::-webkit-search-cancel-button { display: none; }
+.root :global(.command-search-close) { display: grid; flex-shrink: 0; width: 36px; min-height: 36px; }
+.root :global(#command-search-results) { width: 100%; left: 0; background: var(--cmd-panel-solid); }
+@media (max-width: 639px) {
+  .root :global(.command-scroll-frame) { padding-top: calc(12px + env(safe-area-inset-top)); }
 }
 .root :global(.command-glass) { background-clip: padding-box; }
 @media (max-height: 600px) and (max-width: 1023px) {
