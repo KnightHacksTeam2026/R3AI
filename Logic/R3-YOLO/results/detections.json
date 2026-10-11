@@ -1,7 +1,7 @@
 [
   {
     "image": "0obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:07.568718+00:00",
+    "timestamp_utc": "2026-10-11T11:40:18.371567+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -21,7 +21,7 @@
   },
   {
     "image": "2obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:10.688186+00:00",
+    "timestamp_utc": "2026-10-11T11:40:19.513027+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -41,7 +41,7 @@
   },
   {
     "image": "3obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:13.283721+00:00",
+    "timestamp_utc": "2026-10-11T11:40:20.662861+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -61,7 +61,7 @@
   },
   {
     "image": "4obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:15.888654+00:00",
+    "timestamp_utc": "2026-10-11T11:40:21.850741+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -107,7 +107,7 @@
   },
   {
     "image": "6obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:18.457416+00:00",
+    "timestamp_utc": "2026-10-11T11:40:22.966556+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -178,7 +178,7 @@
   },
   {
     "image": "7obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:21.028782+00:00",
+    "timestamp_utc": "2026-10-11T11:40:24.133208+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -224,7 +224,7 @@
   },
   {
     "image": "8obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:23.491131+00:00",
+    "timestamp_utc": "2026-10-11T11:40:25.305620+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -295,7 +295,7 @@
   },
   {
     "image": "b1obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:26.355928+00:00",
+    "timestamp_utc": "2026-10-11T11:40:26.602565+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -341,7 +341,7 @@
   },
   {
     "image": "c1obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:28.828221+00:00",
+    "timestamp_utc": "2026-10-11T11:40:27.745892+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -361,7 +361,7 @@
   },
   {
     "image": "l1obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:31.537493+00:00",
+    "timestamp_utc": "2026-10-11T11:40:28.952092+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,
@@ -381,7 +381,7 @@
   },
   {
     "image": "p1obj.jpeg",
-    "timestamp_utc": "2026-10-11T07:16:34.154210+00:00",
+    "timestamp_utc": "2026-10-11T11:40:30.133527+00:00",
     "model_id": "Ultralytics/YOLO26/yolo26n.pt",
     "image_width_px": 3024,
     "image_height_px": 4032,

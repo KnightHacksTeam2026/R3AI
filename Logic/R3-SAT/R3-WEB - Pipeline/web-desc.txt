@@ -1,7 +1,0 @@
-R3-WEB -> Website -> TypeScript
-R3-WEB/
-└── src/
-    └── app/
-        └── api/
-            └── telemetry/
-                └── route.ts

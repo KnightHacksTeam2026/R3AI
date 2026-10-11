@@ -1,3 +1,0 @@
-Purpose -> AI Models chosen and how they will be used?
-
-    YOLOs
