@@ -1,34 +1,34 @@
 import Link from "next/link";
+import Image from "next/image";
 import LandingExperience from "@/components/landing/LandingExperience";
 import LandingMotion from "@/components/landing/LandingMotion";
+import JourneyNav from "@/components/landing/JourneyNav";
+import StoryRender from "@/components/landing/StoryRender";
 import styles from "@/components/landing/landing.module.css";
 
 export default function HomePage() {
   return (
       <LandingMotion>
         <LandingExperience />
-        <nav className={styles.journeyNav} aria-label="Explore this page"><a href="#mission">01 / Understand the project</a><a href="#platform">02 / Choose an app</a><a href="#questions">03 / Before you start</a></nav>
+        <JourneyNav />
         <section className={styles.intro} id="mission" tabIndex={-1} aria-labelledby="mission-heading">
-          <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>What is R3AI?</p><h2 id="mission-heading">A shared view of waste.<br />A path toward cleanup.</h2></div><p>R3 stands for Recognize, Recover, Restore. The idea: use maps to understand a place, robotics to support the response, and people to turn that understanding into local action.</p></div>
-          <div className={styles.steps}>
-            <article className={styles.step}><span>01 / RECOGNIZE</span><h3>Make waste visible.</h3><p>Explore mapped waste areas and their estimated composition. See where attention can make a difference.</p><small>Geospatial exploration</small></article>
-            <article className={styles.step}><span>02 / RECOVER</span><h3>Coordinate the response.</h3><p>See how a simulated ground-bot fleet moves along routes. Inspect a robot’s status and telemetry in Command.</p><small>Ground robot exploration</small></article>
-            <article className={styles.step}><span>03 / RESTORE</span><h3>Bring people into the loop.</h3><p>Discover places to begin with R3AI Go and keep a personal record of your cleanup activity.</p><small>Community participation</small></article>
-          </div>
-        </section>
-        <ExplorePaths />
-        <section className={styles.signalSection} aria-labelledby="signal-heading">
-          <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>From orbit to street level</p><h2 id="signal-heading">Big-picture thinking.<br />Ground-level movement.</h2></div><p>A vision for connected cleanup: recognize a place, coordinate a route, and bring people into the response.</p></div>
-          <div className={styles.signalStage}>
-            <div className={styles.signalOrbit} aria-hidden="true"><span /><span /><span /><b>R3</b></div>
-            <svg className={styles.signalRoute} viewBox="0 0 1000 300" fill="none" aria-hidden="true"><path d="M80 150 C240 150 200 50 370 70 S600 270 710 210 S800 100 920 150" stroke="currentColor" strokeOpacity=".15" strokeWidth="2" /><path data-signal-path d="M80 150 C240 150 200 50 370 70 S600 270 710 210 S800 100 920 150" pathLength="1" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
-            <div className={styles.signalNodes}>
-              <article><span>01 / THE SIGNAL</span><h3>A place worth<br />paying attention to.</h3><p>Make mapped waste visible.</p></article>
-              <article><span>02 / THE RESPONSE</span><h3>Turn a point<br />into a path.</h3><p>Explore the next cleanup route.</p></article>
-              <article><span>03 / THE PEOPLE</span><h3>Make the mission<br />your own.</h3><p>Step outside with R3AI Go.</p></article>
+          <div className={styles.missionStory}>
+            <div className={styles.missionAnchor}>
+              <p className={styles.eyebrow}>What is R3AI?</p>
+              <h2 id="mission-heading" className={styles.missionTagline}><span>Recognize.</span><span>Recover.</span><span>Restore.</span></h2>
+              <p className={styles.missionSummary}>Robots and people, working together to clean up the places we share.</p>
+              <p className={styles.missionHint}>Three simple ideas. Scroll to follow the story ↓</p>
+              <a href="#platform" className={styles.missionSkip}>Ready to explore? Choose an app ↗</a>
+            </div>
+            <div className={styles.missionChapters}>
+              <article className={styles.missionChapter}><span className={styles.chapterNumber} aria-hidden="true">01</span><p className={styles.eyebrow}>Recognize / See it</p><h3>Find the litter.</h3><p>A robot looks around with its camera. AI helps it spot things that might be trash, like a bottle left on the ground.</p><RecognitionSamples /><div className={styles.chapterOutcome}>A camera image becomes a possible cleanup target.</div></article>
+              <article className={styles.missionChapter}><span className={styles.chapterNumber} aria-hidden="true">02</span><p className={styles.eyebrow}>Recover / Pick it up</p><h3>Let the bot help.</h3><p>The plan is simple: the robot collects the litter it can safely reach and handle. If something is too big or it cannot pick it up, it leaves that item for human help.</p><StoryRender variant="simulation" /><div className={styles.chapterOutcome}>Collect what’s manageable. Flag what needs help.</div></article>
+              <article className={styles.missionChapter}><span className={styles.chapterNumber} aria-hidden="true">03</span><p className={styles.eyebrow}>Restore / Finish together</p><h3>People take it<br />from here.</h3><p>Those remaining items are intended to appear in R3AI Go with a location and image. People can review the task and help finish the cleanup, with specialist teams handling anything unsafe.</p><StoryRender variant="mobile" /><div className={styles.chapterOutcome}>One shared mission. A cleaner place for everyone.</div><a href="#platform" className={styles.textButton}>Meet Command and Go <span aria-hidden="true">→</span></a></article>
             </div>
           </div>
+          <p className={styles.recognitionNote}>This is the project’s intended workflow. The current website demonstrates a simulated fleet and sample routes.</p>
         </section>
+        <ExplorePaths />
         <section className={styles.manifesto} aria-labelledby="manifesto-heading">
           <p className={styles.eyebrow}>The scale changes. The purpose doesn’t.</p>
           <h2 id="manifesto-heading" className={styles.manifestoWords}><span>ONE PLANET.</span><span>EVERY STREET.</span><span>ALL OF US.</span></h2>
@@ -46,6 +46,23 @@ export default function HomePage() {
         <footer className={styles.footer}><strong>R3AI</strong><span>Planet-sized ambition. Ground-level action.</span><nav aria-label="Footer navigation"><Link href="/command">Command</Link><Link href="/go">Go</Link></nav></footer>
       </LandingMotion>
   );
+}
+
+function RecognitionSamples() {
+  return <div className={styles.chapterSamples}>
+    <p className={styles.eyebrow}>R3-YOLO / Sample recognition outputs</p>
+    <div className={styles.recognitionGrid}>
+      <figure className={styles.recognitionCard}>
+        <div className={styles.recognitionImage}><Image src="/recognition/4obj.webp" alt="A bottle on carpet among packaging and another bottle, with a green detection box labeled bottle 0.85." width={960} height={1280} sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1400px) 44vw, 598px" /></div>
+        <figcaption><strong>Bottle / 0.85</strong><p>One bottle detected among other objects.</p></figcaption>
+      </figure>
+      <figure className={styles.recognitionCard}>
+        <div className={styles.recognitionImage}><Image src="/recognition/7obj.webp" alt="A group of bottles, packaging, and a can beside a black bag; one upright bottle is boxed and labeled bottle 0.82." width={960} height={1280} sizes="(max-width: 700px) calc(100vw - 48px), (max-width: 1400px) 44vw, 598px" /></div>
+        <figcaption><strong>Bottle / 0.82</strong><p>A detection in a busier test scene.</p></figcaption>
+      </figure>
+    </div>
+    <p className={styles.recognitionNote}>Green boxes mark predicted objects. Scores show model confidence, not overall accuracy. These test images do not demonstrate complete detection or a successful pickup.</p>
+  </div>;
 }
 
 function ExplorePaths() {
