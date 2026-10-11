@@ -6,7 +6,7 @@ import type { Coordinate, WasteObservation } from "./types";
 export function cleanupCoverage(observations: WasteObservation[], botId: string): FeatureCollection<Polygon> {
   return {
     type: "FeatureCollection",
-    features: observations.filter(item => item.botId === botId).map(item => {
+    features: observations.filter(item => item.botId === botId && item.discovered).map(item => {
       const radiusM = item.density === "dense" ? 65 : item.density === "moderate" ? 45 : 30;
       const ring: Coordinate[] = Array.from({ length: 32 }, (_, index) => {
         const angle = index / 32 * Math.PI * 2;
