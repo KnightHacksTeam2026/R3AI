@@ -13,13 +13,14 @@ import OperationsMap, { type OperationsMapHandle } from "@/components/command/Op
 import RobotPanel from "@/components/command/RobotPanel";
 import TelemetryPanel from "@/components/command/TelemetryPanel";
 import UniverseBackdrop from "@/components/command/UniverseBackdrop";
-import { advanceSimulation, createDemoState } from "@/components/command/demoData";
+import { advanceSimulation, createDemoState, hydrateDemoState, regenerateBotMission, replaceMissionInState } from "@/components/command/demoData";
 import type { Coordinate, Theme } from "@/components/command/types";
 import styles from "./command.module.css";
 
 export default function CommandPage() {
   const mapRef = useRef<OperationsMapHandle>(null);
   const mobileTrigger = useRef<HTMLButtonElement | null>(null);
+  const refreshingBots = useRef(new Set<string>());
   const [mapAttempt, setMapAttempt] = useState(0);
   const [mapStatus, setMapStatus] = useState<"loading" | "ready" | "error">("loading");
   const [searchActive, setSearchActive] = useState(false);
@@ -51,6 +52,32 @@ export default function CommandPage() {
     setTheme(next);
     try { localStorage.setItem("r3ai-command-theme", next); } catch { /* Themes still work without storage. */ }
   }
+
+  useEffect(() => {
+    let cancelled = false;
+    hydrateDemoState().then(next => {
+      if (!cancelled) setDemo(next);
+    }).catch(() => { /* Fallback state already rendered. */ });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    const completed = demo.bots.filter(bot => bot.missionStatus === "complete" && bot.collection?.runs.length);
+    completed.forEach(bot => {
+      if (refreshingBots.current.has(bot.id)) return;
+      refreshingBots.current.add(bot.id);
+      regenerateBotMission(bot.id)
+        .then(mission => {
+          setDemo(current => {
+            const currentBot = current.bots.find(candidate => candidate.id === bot.id);
+            if (!currentBot || currentBot.collection !== bot.collection || currentBot.missionStatus !== "complete") return current;
+            return replaceMissionInState(current, mission, true);
+          });
+          refreshingBots.current.delete(bot.id);
+        })
+        .catch(() => { /* Keep completion visible; Reset retries without a request loop. */ });
+    });
+  }, [demo.bots]);
 
   useEffect(() => {
     if (!running) return;
@@ -99,12 +126,14 @@ export default function CommandPage() {
     }) }));
   }
 
-  function resetMission() {
-    const fresh = createDemoState(false);
-    setDemo(current => ({
-      bots: current.bots.map(bot => bot.id === selectedBotId ? fresh.bots.find(item => item.id === bot.id)! : bot),
-      observations: current.observations.map(item => item.botId === selectedBotId ? fresh.observations.find(observation => observation.id === item.id)! : item),
-    }));
+  async function resetMission() {
+    try {
+      const mission = await regenerateBotMission(selectedBotId);
+      setDemo(current => replaceMissionInState(current, mission));
+      refreshingBots.current.delete(selectedBotId);
+    } catch {
+      // Keep this scan and its human-required list intact if the backend fails.
+    }
   }
 
   const botsPanel = <RobotPanel bots={demo.bots} mapCenter={mapCenter} selectedId={selectedBotId} onSelect={selectBot} />;

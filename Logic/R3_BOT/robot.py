@@ -141,6 +141,28 @@ class Robot:
 
         return unstored_items
 
+    def planCollectionRuns(self, items: list[Item], starting_x=0.0, starting_y=0.0):
+        '''Plan successive loads from one scan, returning pickup runs and human-only items.
+
+        Each run starts empty at the same base. Planning simulates unloading via
+        reset; the frontend replays these runs without generating new trash.
+        '''
+        remaining = list(items)
+        runs = []
+        self.reset()
+        try:
+            while remaining:
+                unstored = self.storeItems(remaining)
+                if not self.contained_items:
+                    # Nothing fits even in an empty robot; retrying cannot help.
+                    break
+                runs.append(self.getPath(starting_x, starting_y))
+                remaining = unstored
+                self.reset()
+            return runs, remaining
+        finally:
+            self.reset()
+
     def getPath(self, starting_x: float=0.0, starting_y: float=0.0):
         '''Implements OSRM API logic for getting the quickest path between items'''
         if len(self.contained_items) <= 1:
