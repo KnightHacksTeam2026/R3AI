@@ -16,12 +16,14 @@ export type WasteObservation = {
   itemCount: number;
   density: "sparse" | "moderate" | "dense";
   stopDistanceM: number;
+  humanRequired?: boolean;
+  dimensions?: [number, number, number];
 };
 export type BotRoute = {
   coordinates: Coordinate[];
   stopDistancesM: number[];
   distanceM: number;
-  source: "street-snapshot" | "unverified-preview";
+  source: "street-snapshot" | "unverified-preview" | "osrm-trip";
 };
 export type RobotState = {
   id: string;
@@ -37,4 +39,9 @@ export type RobotState = {
   route: BotRoute;
   distanceM: number;
   missionStatus: MissionStatus;
+  collection?: {
+    start: Coordinate;
+    runIndex: number;
+    runs: { route: BotRoute; pickupOrderIds: string[] }[];
+  };
 };
