@@ -11,6 +11,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from Logic.R3_BOT.item import Item
 from Logic.R3_BOT.robot import Robot
+from Logic.R3_BOT.yolo_scan import sample_image_scans
 
 CATEGORIES = [
     "Plastic packaging",
@@ -41,7 +42,8 @@ def density_for_item(item: Item):
     return "dense"
 
 
-def build_item_record(item_id: str, item: Item, area_name: str, category: str, pickup_rank: int | None):
+def build_item_record(item_id: str, item: Item, area_name: str, category: str,
+                      pickup_rank: int | None, scan: dict):
     return {
         "id": item_id,
         "category": category,
@@ -56,6 +58,11 @@ def build_item_record(item_id: str, item: Item, area_name: str, category: str, p
         "area": area_name,
         "pickupRank": pickup_rank,
         "stored": pickup_rank is not None,
+        "trashDetected": True,
+        "sampleImage": scan["image"],
+        "detectedCount": scan["detectedCount"],
+        "confidence": scan["confidence"],
+        "modelId": scan["modelId"],
     }
 
 
@@ -65,9 +72,27 @@ def main():
     area_name = payload.get("areaName", area_id)
     start_lon = float(payload.get("startLongitude", -81.3755))
     start_lat = float(payload.get("startLatitude", 28.5422))
-    item_count = int(payload.get("itemCount", 12))
+    requested_count = payload.get("itemCount")
+    item_count = int(requested_count) if requested_count is not None else None
     scan_radius_miles = float(payload.get("scanRadiusMiles", 10.0))
     robot_id = payload.get("botId", f"R3-{area_id}-G01")
+    scans = sample_image_scans(
+        item_count,
+        refresh=bool(payload.get("refreshYolo", False)),
+    )
+
+    if payload.get("detectionOnly", False):
+        json.dump({
+            "botId": robot_id,
+            "areaId": area_id,
+            "scanResults": scans,
+            "scanSummary": {
+                "scanned": len(scans),
+                "trashDetected": sum(scan["trashDetected"] for scan in scans),
+                "rejected": sum(not scan["trashDetected"] for scan in scans),
+            },
+        }, sys.stdout)
+        return
 
     robot = Robot(
         int(payload.get("robotXDim", 15)),
@@ -81,7 +106,10 @@ def main():
     items: list[Item] = []
     item_ids: dict[int, str] = {}
     item_categories: dict[int, str] = {}
-    for index in range(item_count):
+    item_scans: dict[int, dict] = {}
+    for index, scan in enumerate(scans):
+        if not scan["trashDetected"]:
+            continue
         longitude, latitude = random_item_location(start_lon, start_lat, scan_radius_miles)
         item = Item(
             random.randint(1, 9),
@@ -93,7 +121,9 @@ def main():
         )
         items.append(item)
         item_ids[id(item)] = f"{robot_id}-{scan_id}-T{index + 1:02d}"
-        item_categories[id(item)] = CATEGORIES[index % len(CATEGORIES)]
+        labels = scan["labels"]
+        item_categories[id(item)] = labels[0].title() if labels else CATEGORIES[index % len(CATEGORIES)]
+        item_scans[id(item)] = scan
 
     runs, unstored_items = robot.planCollectionRuns(items, start_lon, start_lat)
     pickup_order = [item for run in runs for item in run]
@@ -116,6 +146,7 @@ def main():
                 area_name,
                 item_categories[id(item)],
                 pickup_rank.get(id(item)),
+                item_scans[id(item)],
             )
             for item in items
         ],
@@ -132,6 +163,12 @@ def main():
         "unstoredItemIds": [item_ids[id(item)] for item in unstored_items],
         "humanRequiredItemIds": [item_ids[id(item)] for item in unstored_items],
         "pickupOrderIds": [item_ids[id(item)] for item in pickup_order],
+        "scanResults": scans,
+        "scanSummary": {
+            "scanned": len(scans),
+            "trashDetected": len(items),
+            "rejected": len(scans) - len(items),
+        },
         "robotState": {
             "xAvailable": robot.x_available,
             "yAvailable": robot.y_available,

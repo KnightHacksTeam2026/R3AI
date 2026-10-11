@@ -1,5 +1,6 @@
 import io
 import json
+import random
 import unittest
 from contextlib import redirect_stdout
 from unittest.mock import patch
@@ -7,6 +8,7 @@ from unittest.mock import patch
 from Logic.R3_BOT.item import Item
 from Logic.R3_BOT.robot import Robot
 from Logic.R3_BOT import mission_scan
+from Logic.R3_BOT import yolo_scan
 
 
 class CollectionRunsTests(unittest.TestCase):
@@ -81,7 +83,17 @@ class CollectionRunsTests(unittest.TestCase):
         payload = {'itemCount': 10, 'robotXDim': 4, 'robotYDim': 4,
                    'robotZDim': 2, 'weightCapacityKg': 4}
         output = io.StringIO()
+        scans = [{
+            'candidateIndex': index + 1,
+            'image': f'sample-{index}.jpeg',
+            'trashDetected': True,
+            'detectedCount': 1,
+            'labels': ['bottle'],
+            'confidence': 0.9,
+            'modelId': 'test-yolo',
+        } for index in range(10)]
         with patch('sys.stdin', io.StringIO(json.dumps(payload))), \
+             patch.object(mission_scan, 'sample_image_scans', return_value=scans), \
              patch.object(mission_scan, 'Item', side_effect=self.collectable + self.human), \
              patch.object(Robot, 'getPath', autospec=True,
                           side_effect=lambda robot, x, y: list(robot.contained_items)), \
@@ -96,6 +108,45 @@ class CollectionRunsTests(unittest.TestCase):
         self.assertEqual(data['robotState']['availableWeight'], 4)
         self.assertEqual([item_id for run in data['runs'] for item_id in run['pickupOrderIds']], data['pickupOrderIds'])
         self.assertTrue(all(run['routeCoordinates'][0] == [-81.3755, 28.5422] for run in data['runs']))
+
+    def test_yolo_false_candidates_never_enter_storage_or_routes(self):
+        scans = [
+            {'candidateIndex': 1, 'image': 'trash.jpeg', 'trashDetected': True,
+             'detectedCount': 1, 'labels': ['bottle'], 'confidence': 0.88,
+             'modelId': 'test-yolo'},
+            {'candidateIndex': 2, 'image': 'empty.jpeg', 'trashDetected': False,
+             'detectedCount': 0, 'labels': [], 'confidence': None,
+             'modelId': 'test-yolo'},
+        ]
+        output = io.StringIO()
+        payload = {'itemCount': 2, 'robotXDim': 4, 'robotYDim': 4,
+                   'robotZDim': 2, 'weightCapacityKg': 4}
+        with patch('sys.stdin', io.StringIO(json.dumps(payload))), \
+             patch.object(mission_scan, 'sample_image_scans', return_value=scans), \
+             patch.object(mission_scan, 'Item', return_value=self.collectable[0]), \
+             redirect_stdout(output):
+            mission_scan.main()
+        data = json.loads(output.getvalue())
+        self.assertEqual(data['scanSummary'], {'scanned': 2, 'trashDetected': 1, 'rejected': 1})
+        self.assertEqual(len(data['items']), 1)
+        self.assertTrue(data['items'][0]['trashDetected'])
+        self.assertEqual(data['items'][0]['sampleImage'], 'trash.jpeg')
+        self.assertEqual(data['storedItemIds'], data['pickupOrderIds'])
+        self.assertNotIn('empty.jpeg', [item['sampleImage'] for item in data['items']])
+
+    def test_sample_scans_are_unique_and_exclude_calibration_image(self):
+        reports = [
+            {'image': 'b1obj.jpeg', 'detections': [], 'model_id': 'test',
+             'test_label': {'expected_count': 1, 'expected_kind': 'bottle'}},
+            *[{'image': f'{index}obj.jpeg', 'detections': [], 'model_id': 'test',
+               'test_label': {'expected_count': index, 'expected_kind': 'unspecified'}} for index in range(10)],
+        ]
+        with patch.object(yolo_scan, 'load_detection_reports', return_value=reports):
+            scans = yolo_scan.sample_image_scans(12, rng=random.Random(4))
+        self.assertEqual(len(scans), 10)
+        self.assertEqual(len({scan['image'] for scan in scans}), 10)
+        self.assertNotIn('b1obj.jpeg', {scan['image'] for scan in scans})
+        self.assertEqual(sum(scan['knownTrash'] for scan in scans), 9)
 
 
 if __name__ == '__main__':
