@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
-import type { GeoJSONSource, Map as MapInstance, StyleSpecification } from "maplibre-gl";
+import type { GeoJSONSource, Map as MapInstance } from "maplibre-gl";
 import type { FeatureCollection, LineString, Point } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { DEFAULT_CENTER, type CleanupRoute } from "./cleanupRoutes";
@@ -10,15 +10,10 @@ import type { Coordinate } from "../command/types";
 import type { GoPosition } from "./useGoLocation";
 import styles from "./GoExplorer.module.css";
 import useTheme from "../shared/useTheme";
+import { goMapStyle } from "./goMapStyle";
 
 export type GoMapHandle = { focus: (coordinate: Coordinate) => void; fit: (route: CleanupRoute) => void; zoom: (direction: number) => void; north: () => void };
 type Props = { routes: CleanupRoute[]; selectedId: string | null; position: GoPosition | null; onSelect: (id: string) => void; onMove: (center: Coordinate) => void };
-
-const fallbackStyle: StyleSpecification = {
-  version: 8,
-  sources: { streets: { type: "raster", tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], tileSize: 256, maxzoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors' } },
-  layers: [{ id: "streets", type: "raster", source: "streets", paint: { "raster-saturation": -0.65, "raster-contrast": -0.12 } }],
-};
 
 const GoMap = forwardRef<GoMapHandle, Props>(function GoMap({ routes, selectedId, position, onSelect, onMove }, ref) {
   const { theme } = useTheme();
@@ -32,7 +27,7 @@ const GoMap = forwardRef<GoMapHandle, Props>(function GoMap({ routes, selectedId
 
   function padding() {
     const desktop = (container.current?.clientWidth ?? 0) >= 800;
-    return desktop ? { top: 110, bottom: 80, left: 450, right: 100 } : { top: 130, bottom: Math.min((container.current?.clientHeight ?? 800) * 0.49, 410), left: 50, right: 70 };
+    return desktop ? { top: 110, bottom: 80, left: 410, right: 100 } : { top: 130, bottom: Math.min((container.current?.clientHeight ?? 800) * 0.49, 410), left: 50, right: 70 };
   }
 
   useImperativeHandle(ref, () => ({
@@ -57,7 +52,7 @@ const GoMap = forwardRef<GoMapHandle, Props>(function GoMap({ routes, selectedId
     let hadError = false;
     maplibregl.setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).toString());
     try {
-      instance = new maplibregl.Map({ container: container.current, style: process.env.NEXT_PUBLIC_GO_MAP_STYLE_URL || fallbackStyle, center: DEFAULT_CENTER, zoom: 14.2, minZoom: 2, maxZoom: 19, attributionControl: false });
+      instance = new maplibregl.Map({ container: container.current, style: process.env.NEXT_PUBLIC_GO_MAP_STYLE_URL || goMapStyle(document.documentElement.dataset.theme === "dark" ? "dark" : "light"), center: DEFAULT_CENTER, zoom: 14.2, minZoom: 2, maxZoom: 19, attributionControl: false });
     } catch {
       const timer = window.setTimeout(() => setError("The map couldn’t start. Enable hardware acceleration or explore the route list below."), 0);
       return () => window.clearTimeout(timer);
@@ -87,9 +82,12 @@ const GoMap = forwardRef<GoMapHandle, Props>(function GoMap({ routes, selectedId
 
   useEffect(() => {
     const instance = map.current;
-    if (!ready || !instance?.getLayer("streets") || process.env.NEXT_PUBLIC_GO_MAP_STYLE_URL) return;
-    instance.setPaintProperty("streets", "raster-brightness-max", theme === "dark" ? 0.3 : 1);
-    instance.setPaintProperty("streets", "raster-saturation", theme === "dark" ? -0.85 : -0.65);
+    if (!ready || !instance || process.env.NEXT_PUBLIC_GO_MAP_STYLE_URL) return;
+    // Repaint the basemap without resetting the camera, routes, or location.
+    for (const layer of goMapStyle(theme).layers) {
+      if (!instance.getLayer(layer.id)) continue;
+      for (const [property, value] of Object.entries(layer.paint ?? {})) instance.setPaintProperty(layer.id, property as Parameters<MapInstance["setPaintProperty"]>[1], value);
+    }
   }, [theme, ready]);
 
   useEffect(() => {
