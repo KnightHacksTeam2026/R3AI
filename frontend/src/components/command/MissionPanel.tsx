@@ -14,15 +14,6 @@ export default function MissionPanel({ observations, robot }: {
   return <GlassPanel className="p-4 sm:p-5">
     <div className="mb-3 flex items-center justify-between gap-2"><div><p className="command-kicker">Selected bot · {robot.missionStatus}</p><h2 className="mt-1 font-semibold">{robot.id}</h2></div><span className={`command-bot-chip ${robot.type}`}><BotIcon type={robot.type} /></span></div>
     <p className="mb-3 text-xs text-[var(--cmd-muted)]">{robot.area} · Ground collection · Synthetic</p>
-<<<<<<< HEAD
-    {robot.collection && <p className="mb-3 text-xs text-[var(--cmd-muted)]">
-      Load {Math.min(robot.collection.runIndex + 1, robot.collection.runs.length)} / {robot.collection.runs.length}
-      {" · "}{observations.filter(item => item.humanRequired).length} items need human pickup.
-      {" "}Payload empties at base between loads; the same trash remains until collected.
-    </p>}
-    <div className="command-mission-actions mb-3 flex gap-2"><button type="button" onClick={onToggleMission} disabled={robot.missionStatus === "complete" || unavailable || robot.batteryPct <= 0} className="command-primary-button min-w-0 flex-1">{robot.batteryPct <= 0 ? "Battery empty" : unavailable ? "Route unavailable" : robot.missionStatus === "running" ? "Pause simulation" : robot.missionStatus === "complete" ? "Complete" : robot.missionStatus === "paused" ? "Resume simulation" : "Run simulation"}</button><button type="button" onClick={onReset} title="Reset selected bot’s demo mission and simulated battery" className="command-secondary-button">Reset</button></div>
-=======
->>>>>>> 61bf9d9f389f2236731a987d674caf98015afe49
     <div className="mb-1 flex justify-between text-xs"><span className="text-[var(--cmd-muted)]">Battery · simulated</span><strong>{Math.round(robot.batteryPct)}%</strong></div>
     <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-[var(--cmd-track)]" role="progressbar" aria-label="Simulated battery level" aria-valuenow={Math.round(robot.batteryPct)} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--cmd-accent)] transition-all" style={{ width: `${robot.batteryPct}%` }} /></div>
     <div className="mb-3 grid grid-cols-3 gap-2">
@@ -36,13 +27,8 @@ export default function MissionPanel({ observations, robot }: {
     <div className="mt-2 flex justify-between text-xs"><span className="text-[var(--cmd-muted)]">Collected / remaining mass</span><span>{recovered.toFixed(2)} / {(estimated - recovered).toFixed(2)} kg</span></div>
     <div className="mt-2 flex justify-between text-xs"><span className="text-[var(--cmd-muted)]">Payload / capacity</span><span>{`${robot.payloadKg.toFixed(2)} / ${robot.capacityKg} kg`}</span></div>
     <details className="mt-4 text-[11px] leading-relaxed text-[var(--cmd-muted)]"><summary className="cursor-pointer py-2">Simulation & route notes</summary><p className="mt-2">
-<<<<<<< HEAD
-      {unavailable ? "Unverified waypoint preview only. Ground movement is disabled until street-route data is available." : robot.collection ? "OSRM orders each load's pickups; displayed connections are straight-line previews, not street geometry. Return and unloading at base are not animated." : <>OSRM driving-route snapshot · <a className="underline" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>. Not live obstacle or robot-access clearance.</>}
-      {" "}Each load plays in 40 seconds. Backend scans start empty; new trash is generated only after all planned loads finish. A scan with no collectable items waits for Reset. No physical bot or AI inference.
-=======
       {unavailable ? "Unverified waypoint preview only. Ground movement is disabled until street-route data is available." : <>OSRM driving-route snapshot · <a className="underline" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>. Not live obstacle or robot-access clearance.</>}
       {" "}Read-only demo data updates in the background. No physical bot or API telemetry connection.
->>>>>>> 61bf9d9f389f2236731a987d674caf98015afe49
     </p></details>
   </GlassPanel>;
 }
