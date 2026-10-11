@@ -119,7 +119,7 @@
 .root :global(.command-map-button) { display: grid; height: 2.75rem; width: 2.75rem; place-items: center; font-size: 1.125rem; }
 
 .root :global(.command-icon-button) { min-height: 44px; }
-.root :global(.command-mission-actions) { position: sticky; top: -1rem; z-index: 1; background: var(--cmd-panel-solid); border: 1px solid var(--cmd-border); box-shadow: inset 0 1px 0 var(--cmd-edge); border-radius: 16px; padding: 5px; margin-inline: -6px; }
+.root :global(.command-mission-actions) { background: linear-gradient(135deg, var(--cmd-reflection), transparent 45%), var(--cmd-panel); border: 1px solid var(--cmd-border); box-shadow: inset 0 1px 0 var(--cmd-edge), var(--cmd-shadow); border-radius: 16px; padding: 5px; -webkit-backdrop-filter: blur(24px) saturate(135%); backdrop-filter: blur(24px) saturate(135%); }
 .root :global(.command-mission-actions) button { min-height: 44px; }
 .root :global(.command-scroll-frame) { gap: 16px; padding-bottom: max(28px, env(safe-area-inset-bottom)); }
 .root :global(.command-workspace) { grid-template-columns: clamp(280px, 24vw, 320px) minmax(0, 1fr) clamp(280px, 24vw, 320px); column-gap: 24px; }

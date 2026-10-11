@@ -123,7 +123,7 @@ export default function GoExplorer({ session, onSessionChange, installed, instal
   return <div className={styles.explorer}>
     <GoMap ref={map} routes={visibleRoutes} selectedId={selectedId} position={location.position} onSelect={select} onMove={setCenter} />
     <header className={styles.header}>
-      <Navbar actions={!installed ? <button className={styles.install} onClick={onInstall} disabled={installing} aria-label={installing ? "Opening installation" : "Get the app"}><GoIcon name="download" size={17} /><span>{installing ? "Opening…" : "Get the app"}</span></button> : undefined} />
+      <Navbar floating actions={!installed ? <button className={styles.install} onClick={onInstall} disabled={installing} aria-label={installing ? "Opening installation" : "Get the app"}><GoIcon name="download" size={17} /><span>{installing ? "Opening…" : "Get the app"}</span></button> : undefined} />
     </header>
 
     <div className={styles.mapControls} aria-label="Map controls">

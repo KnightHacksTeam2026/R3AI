@@ -41,7 +41,7 @@ export default function LandingExperience() {
 
   return <section ref={root} className={styles.experience} aria-label="R3AI introduction">
     <HeroBackdrop />
-    <header className={styles.landingNav} data-theme="shared"><Navbar /></header>
+    <header className={styles.landingNav} data-theme="shared"><Navbar floating /></header>
     <canvas ref={canvas} className={styles.globeCanvas} aria-hidden="true" />
     <div className={styles.heroCopy}>
       <p className={styles.eyebrow}><span />Robotics · Maps · Community cleanup</p>

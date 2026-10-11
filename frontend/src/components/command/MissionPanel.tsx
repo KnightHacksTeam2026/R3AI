@@ -1,5 +1,6 @@
 import GlassPanel from "./GlassPanel";
 import BotIcon from "./BotIcon";
+import MissionControls from "./MissionControls";
 import YoloScanPreview from "./YoloScanPreview";
 import { imageClassificationMeasurement } from "./detectionMetrics";
 import { formatDistance } from "./routeGeometry";
@@ -22,7 +23,6 @@ export default function MissionPanel({ observations, robot, onToggleMission, onR
   const unavailable = robot.route.source === "unverified-preview";
   const phase = robot.collection?.phase ?? "collecting";
   const humanRequired = discovered.filter(item => item.humanRequired).length;
-  const hasRuns = Boolean(robot.collection?.runs.length);
   const humanOnly = robot.missionIssue === "human-only";
   const scanStats = robot.collection?.scanStats;
   const scanFrames = robot.collection?.scanFrames ?? [];
@@ -31,28 +31,6 @@ export default function MissionPanel({ observations, robot, onToggleMission, onR
     : scanFrames.filter(frame => frame.scanDistanceM <= robot.distanceM);
   const detectedFrames = processedFrames.filter(frame => frame.trashDetected).length;
   const imageMeasurement = imageClassificationMeasurement(processedFrames);
-  const primaryDisabled = robot.missionStatus === "complete" || unavailable || robot.batteryPct <= 0 || (phase === "collecting" && !hasRuns);
-  const primaryLabel = robot.batteryPct <= 0
-    ? "Battery empty"
-    : unavailable
-      ? "Route unavailable"
-      : humanOnly && phase === "collecting"
-        ? "Human pickup required"
-        : phase === "scanning"
-          ? robot.missionStatus === "running"
-            ? "Pause scan"
-            : robot.missionStatus === "paused"
-              ? "Resume scan"
-              : "Start scan"
-          : !hasRuns
-            ? "No route available"
-            : robot.missionStatus === "running"
-              ? "Pause collection"
-              : robot.missionStatus === "paused"
-                ? "Resume collection"
-                : robot.missionStatus === "complete"
-                  ? "Complete"
-                  : "Run collection";
   const missionNote = humanOnly && phase === "collecting"
     ? "The scan finished, but the remaining trash clusters are oversized and require human handling."
     : phase === "scanning"
@@ -67,6 +45,7 @@ export default function MissionPanel({ observations, robot, onToggleMission, onR
         <div key={metric.label} className="rounded-xl border border-[var(--cmd-border)] bg-[var(--cmd-soft)] p-2.5"><div className="text-lg font-semibold text-[var(--cmd-accent)]">{metric.value}</div><div className="mt-1 text-[10px] text-[var(--cmd-muted)]">{metric.label}</div></div>
       )}
     </div> : null}
+    <MissionControls robot={robot} onToggleMission={onToggleMission} onReset={onReset} resetting={resetting} className="mb-3" />
     {robot.collection?.scanFrames?.length ? <div className="mb-3 grid grid-cols-2 gap-2">
       <YoloScanPreview compact frames={robot.collection.scanFrames} phase={phase} traveledDistanceM={robot.distanceM} />
       <section className="min-h-[136px] rounded-2xl border border-[var(--cmd-border)] bg-[var(--cmd-soft)] p-3" aria-labelledby="detection-measurement-title">
@@ -80,7 +59,6 @@ export default function MissionPanel({ observations, robot, onToggleMission, onR
     </div> : null}
     {robot.collection ? <p className="mb-3 text-xs text-[var(--cmd-muted)]">{phase === "scanning" ? `Scan route in progress · ${discovered.length} targets discovered so far.` : `Load ${Math.min(robot.collection.runIndex + 1, robot.collection.runs.length)} / ${robot.collection.runs.length} · ${humanRequired} items need human pickup.`} Payload empties at base between loads; the same trash remains until collected.</p> : null}
     {missionNote ? <p className="mb-3 rounded-xl border border-[var(--cmd-border)] bg-[var(--cmd-soft)] px-3 py-2 text-xs text-[var(--cmd-muted)]">{missionNote}</p> : null}
-    <div className="command-mission-actions mb-3 flex gap-2"><button type="button" onClick={onToggleMission} disabled={primaryDisabled} className="command-primary-button min-w-0 flex-1">{primaryLabel}</button><button type="button" onClick={onReset} disabled={resetting} title="Reset selected bot’s demo mission and simulated battery" className="command-secondary-button">{resetting ? "Resetting..." : "Reset"}</button></div>
     <div className="mb-1 flex justify-between text-xs"><span className="text-[var(--cmd-muted)]">Battery · simulated</span><strong>{Math.round(robot.batteryPct)}%</strong></div>
     <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-[var(--cmd-track)]" role="progressbar" aria-label="Simulated battery level" aria-valuenow={Math.round(robot.batteryPct)} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--cmd-accent)] transition-all" style={{ width: `${robot.batteryPct}%` }} /></div>
     <div className="mb-3 grid grid-cols-3 gap-2">
