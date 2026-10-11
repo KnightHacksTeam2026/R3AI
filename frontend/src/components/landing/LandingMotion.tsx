@@ -24,10 +24,6 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
         gsap.fromTo(words[index], { "--word-progress": 0 }, { "--word-progress": 1, ease: "none", scrollTrigger: { trigger: chapter, start: "top 75%", end: "top 30%", scrub: 0.4 } });
         gsap.from(chapter.children, { y: 40, opacity: 0.25, stagger: 0.08, ease: "none", scrollTrigger: { trigger: chapter, start: "top 85%", end: "top 25%", scrub: 0.5 } });
       });
-      element.querySelectorAll<HTMLElement>(`.${styles.platformCard}`).forEach((card, index) => {
-        gsap.from(card, { y: 60, opacity: 0, duration: 1, delay: index * 0.15, ease: "power3.out", scrollTrigger: { trigger: card, start: "top 90%", once: true } });
-        gsap.from(card.querySelectorAll("li"), { x: 18, opacity: 0, stagger: 0.12, duration: 0.65, ease: "power2.out", scrollTrigger: { trigger: card, start: "top 65%", once: true } });
-      });
       const rings = element.querySelector(`.${styles.closingRings}`);
       const manifesto = element.querySelector<HTMLElement>(`.${styles.manifesto}`);
       if (manifesto) {
@@ -49,33 +45,6 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
       return () => { disposed = true; cancelAnimationFrame(refresh); };
     }, element);
 
-    media.add("(prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine)", () => {
-      const cleanups: (() => void)[] = [];
-      element.querySelectorAll<HTMLElement>(`.${styles.platformCard}`).forEach(card => {
-        const tiltX = gsap.quickTo(card, "rotationX", { duration: 0.65, ease: "power3.out" });
-        const tiltY = gsap.quickTo(card, "rotationY", { duration: 0.65, ease: "power3.out" });
-        const spotlightX = gsap.quickTo(card, "--spot-x", { duration: 0.4 });
-        const spotlightY = gsap.quickTo(card, "--spot-y", { duration: 0.4 });
-        const glow = gsap.quickTo(card, "--spot-opacity", { duration: 0.4 });
-        const arrow = card.querySelector("a span");
-        const arrowX = arrow ? gsap.quickTo(arrow, "x", { duration: 0.4, ease: "power3.out" }) : null;
-        const move = (event: PointerEvent) => {
-          const rect = card.getBoundingClientRect();
-          const x = (event.clientX - rect.left) / rect.width;
-          const y = (event.clientY - rect.top) / rect.height;
-          tiltX((0.5 - y) * 5); tiltY((x - 0.5) * 6);
-          spotlightX(x * 100); spotlightY(y * 100); glow(1); arrowX?.(7);
-        };
-        const reset = () => { tiltX(0); tiltY(0); glow(0); arrowX?.(0); };
-        const focus = () => { glow(0.7); arrowX?.(7); };
-        card.addEventListener("pointermove", move, { passive: true });
-        card.addEventListener("pointerleave", reset);
-        card.addEventListener("focusin", focus);
-        card.addEventListener("focusout", reset);
-        cleanups.push(() => { card.removeEventListener("pointermove", move); card.removeEventListener("pointerleave", reset); card.removeEventListener("focusin", focus); card.removeEventListener("focusout", reset); });
-      });
-      return () => cleanups.forEach(cleanup => cleanup());
-    }, element);
     return () => media.revert();
   }, []);
 

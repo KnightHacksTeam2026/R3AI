@@ -42,10 +42,6 @@
 }
 @media (prefers-reduced-motion: reduce) { .journeyNumber, .journeyLabel { transition: none; } }
 .intro, .platform, .questions { scroll-margin-top: 24px; }
-.firstSteps { margin: 24px 0; padding-left: 20px; list-style: decimal; font-size: 13px; line-height: 1.7; color: inherit; }
-.firstSteps li { margin-bottom: 10px; padding-left: 6px; }
-.firstSteps li::marker { color: var(--accent); font-weight: 600; }
-.platformNote { max-width: 1220px; margin: 24px auto 0; font-size: 12px; line-height: 1.7; color: var(--muted); }
 .questions { padding: 90px max(6vw, 24px); background: var(--surface-soft); }
 .questionList { max-width: 1220px; margin: auto; }
 .questionList details { border-top: 1px solid var(--border); padding: 8px 0; }
@@ -114,7 +110,7 @@
 .step h3 { margin: 38px 0 12px; font-size: 25px; font-weight: 500; letter-spacing: -.035em; }
 .step p { color: #64776a; font-size: 14px; line-height: 1.8; max-width: 320px; }
 .step small { display: inline-block; margin-top: 20px; background: #e8ece3; border-radius: 20px; padding: 7px 10px; color: #557060; font-size: 10px; }
-.platform { padding: 100px max(6vw, 24px); background: #15271f; }
+.platform { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0; background: #09120f; }
 .chapterSamples { width: 100%; margin-top: 32px; }
 .chapterSamples > .eyebrow { margin-bottom: 16px; }
 .recognitionGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 100%; }
@@ -155,20 +151,37 @@
   .manifestoWords { font-size: clamp(32px, 10vw, 60px); line-height: 1.1; }
 }
 @media (forced-colors: active) { .manifestoWords span:nth-child(3) { color: CanvasText; -webkit-text-stroke: 0; } }
-.platform .sectionHeading > p { color: #adc2b2; }
-.platformCards { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; max-width: 1220px; margin: auto; perspective: 1200px; }
-.platformCard { --spot-x: 50; --spot-y: 50; --spot-opacity: 0; position: relative; isolation: isolate; overflow: hidden; padding: 36px; border: 1px solid #c3dfcd26; border-radius: 28px; background: #1b3328; min-height: 360px; display: flex; flex-direction: column; align-items: start; }
-.platformCard::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(380px circle at calc(var(--spot-x) * 1%) calc(var(--spot-y) * 1%), #c5f47b28, transparent 75%); opacity: var(--spot-opacity); }
-.platformCard a span { display: inline-block; }
-.platformCard:focus-within { border-color: #a3d9b8; }
-.goCard { background: #d5edbb; color: #1b3328; border: none; }
-.platformCard h3 { font-size: 35px; font-weight: 500; letter-spacing: -.05em; margin: 24px 0 16px; }
-.platformCard p { font-size: 14px; line-height: 1.8; color: #b3c9bb; max-width: 390px; }
-.goCard p, .goCard .eyebrow { color: #4b6750; }
-.platformCard a { margin-top: auto; padding-top: 32px; font-size: 13px; display: flex; align-items: center; gap: 32px; }
-.platformCard a:hover { text-decoration: underline; text-underline-offset: 6px; }
-.platformCard ul { margin: 18px 0 28px; padding: 0; list-style: none; color: #b3c9bb; font-size: 12px; line-height: 2; }
-.goCard ul { color: #4b6750; }
+.platformPane { position: relative; isolation: isolate; overflow: hidden; min-height: clamp(560px, 74vh, 760px); padding: clamp(34px, 5vw, 76px); display: flex; flex-direction: column; }
+.commandPane { color: #eef7f0; background: radial-gradient(circle at 78% 24%, #4f9f7d2c, transparent 34%), linear-gradient(145deg, #07100e, #10231b); }
+.goPane { color: #15271e; background: radial-gradient(circle at 80% 18%, #f2ffd98f, transparent 33%), linear-gradient(145deg, #d9f7aa, #a9df78); }
+.paneMeta { position: relative; z-index: 2; display: flex; justify-content: space-between; gap: 20px; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.paneCopy { position: relative; z-index: 2; margin-top: auto; max-width: 560px; }
+.paneCopy .eyebrow { margin-bottom: 22px; color: inherit; opacity: .68; }
+.paneCopy h2 { max-width: 620px; font-size: clamp(43px, 5vw, 74px); font-weight: 580; line-height: .98; letter-spacing: -.065em; }
+.paneCopy > p:not(.eyebrow) { margin-top: 24px; max-width: 380px; font-size: 15px; line-height: 1.65; opacity: .72; }
+.paneCopy a { display: inline-flex; align-items: center; gap: 44px; min-height: 48px; margin-top: 34px; padding: 0 20px; border: 1px solid currentColor; border-radius: 999px; font-size: 12px; font-weight: 700; transition: gap 180ms ease, background-color 180ms ease, color 180ms ease; }
+.commandPane .paneCopy a:hover, .commandPane .paneCopy a:focus-visible { gap: 54px; background: #eef7f0; color: #10231b; }
+.goPane .paneCopy a:hover, .goPane .paneCopy a:focus-visible { gap: 54px; background: #15271e; color: #d9f7aa; }
+.commandSignal, .goRoute { position: absolute; z-index: 1; pointer-events: none; transition: transform 500ms cubic-bezier(.2,.7,.2,1); }
+.commandSignal { top: 10%; right: -8%; width: min(38vw, 430px); aspect-ratio: 1; display: grid; place-items: center; color: #b8efca; }
+.commandSignal i { position: absolute; inset: 8%; border: 1px solid #b8efca22; border-radius: 50%; }
+.commandSignal i:nth-child(2) { inset: 23%; border-color: #b8efca2e; }
+.commandSignal i:nth-child(3) { inset: 38%; border-color: #b8efca40; }
+.commandSignal svg { width: 112px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 20px #9de0b94a); }
+.commandSignal svg circle { fill: currentColor; stroke: none; }
+.goRoute { top: 4%; right: -3%; width: min(36vw, 400px); color: #1e5037; opacity: .55; }
+.goRoute svg { width: 100%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.goRoute circle { fill: #d9f7aa; }
+.platformPane:hover .commandSignal, .platformPane:focus-within .commandSignal { transform: rotate(4deg) scale(1.04); }
+.platformPane:hover .goRoute, .platformPane:focus-within .goRoute { transform: translate(-10px, 8px); }
+@media (max-width: 800px) {
+  .platform { grid-template-columns: 1fr; }
+  .platformPane { min-height: 520px; padding: 30px 24px 42px; }
+  .paneCopy h2 { font-size: clamp(42px, 11vw, 64px); }
+  .commandSignal, .goRoute { width: min(72vw, 350px); }
+  .commandSignal { right: -18%; }
+  .goRoute { right: -10%; }
+}
 .closing { position: relative; isolation: isolate; overflow: hidden; min-height: 580px; padding: 140px 24px; text-align: center; background: radial-gradient(ellipse at center, #1c382d, #101c19 72%); }
 .closingRings { position: absolute; z-index: -1; width: min(95vw, 900px); aspect-ratio: 1; top: 50%; left: 50%; translate: -50% -50%; pointer-events: none; contain: layout paint; }
 .closingRings span { position: absolute; inset: 2%; border: 1px solid #b8e4ac26; border-radius: 50%; }
@@ -194,10 +207,6 @@
 .sectionHeading > p, .step p { color: var(--muted); }
 .step { border-color: var(--border); }
 .step small { background: var(--surface-soft); color: var(--muted); }
-:global(html[data-theme="dark"]) .goCard { background: #254333; color: var(--foreground); }
-:global(html[data-theme="dark"]) .goCard p,
-:global(html[data-theme="dark"]) .goCard ul,
-:global(html[data-theme="dark"]) .goCard .eyebrow { color: var(--muted); }
 :global(html[data-theme="light"]) .experience { background: radial-gradient(ellipse at 50% 95%, #b7d8bb55, transparent 65%), var(--background); }
 :global(html[data-theme="light"]) .backdropVignette { background: radial-gradient(ellipse at 50% 32%, #eff4e755, transparent 60%); }
 :global(html[data-theme="light"]) .heroCopy h1 span,
@@ -206,16 +215,12 @@
 :global(html[data-theme="light"]) .eyebrow,
 :global(html[data-theme="light"]) .sceneFooter,
 :global(html[data-theme="light"]) .callout > p:last-child,
-:global(html[data-theme="light"]) .platformCard p,
-:global(html[data-theme="light"]) .platformCard ul,
-:global(html[data-theme="light"]) .platform .sectionHeading > p { color: var(--muted); }
+:global(html[data-theme="light"]) .platform .eyebrow { color: inherit; }
 :global(html[data-theme="light"]) .heroCopy > .eyebrow,
 :global(html[data-theme="light"]) .textButton,
 :global(html[data-theme="light"]) .footer strong { color: var(--accent); }
 :global(html[data-theme="light"]) .callout,
-:global(html[data-theme="light"]) .sceneBadge,
-:global(html[data-theme="light"]) .platformCard { background: var(--surface); border-color: var(--border); }
-:global(html[data-theme="light"]) .platform { background: var(--surface-soft); }
+:global(html[data-theme="light"]) .sceneBadge { background: var(--surface); border-color: var(--border); }
 :global(html[data-theme="light"]) .calloutIcon { background: var(--surface-soft); color: var(--accent); }
 :global(html[data-theme="light"]) .closing { background: radial-gradient(ellipse at center, #deead8, var(--background) 72%); }
 :global(html[data-theme="light"]) .closingRings span { border-color: var(--border); }
@@ -241,11 +246,10 @@
   .sceneFooter { left: 16px; right: 16px; bottom: 22px; font-size: 8px; }
   .sceneBadge { padding: 8px; }
   .scrollHint { gap: 6px; }
-  .intro, .platform { padding: 66px 24px; }
+  .intro { padding: 66px 24px; }
   .sectionHeading { margin-bottom: 36px; }
-  .steps, .platformCards { grid-template-columns: 1fr; gap: 36px; }
+  .steps { grid-template-columns: 1fr; gap: 36px; }
   .step h3 { margin-top: 24px; }
-  .platformCard { padding: 26px; min-height: 340px; }
   .closing { min-height: 480px; padding: 100px 24px; }
   .closingRings { width: 100vw; }
 }
@@ -253,5 +257,6 @@
   .experience { height: min(900px, 100svh); }
   .missionTitle, .callout, .scrollHint { display: none; }
   .primaryButton { transition: none; }
+  .commandSignal, .goRoute, .paneCopy a { transition: none; }
   .primaryButton:hover { transform: none; }
 }

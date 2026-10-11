@@ -66,12 +66,16 @@ function RecognitionSamples() {
 }
 
 function ExplorePaths() {
-  return <section className={styles.platform} id="platform" tabIndex={-1} aria-labelledby="platform-heading">
-    <div className={styles.sectionHeading}><div><p className={styles.eyebrow}>Choose your starting point</p><h2 id="platform-heading">Want to see the system,<br />or explore a route?</h2></div><p>Both are part of R3AI. Start with Command for the project overview, or head straight to Go for the community experience.</p></div>
-    <div className={styles.platformCards}>
-      <article className={styles.platformCard}><span className={styles.eyebrow}>Start here / The robot side</span><h3>R3AI Command</h3><p>Explore the simulated fleet on a map and understand how robot-assisted cleanup could be coordinated.</p><ol className={styles.firstSteps}><li>Select a robot on the map or in the fleet list.</li><li>Inspect its status, battery, and telemetry.</li><li>Follow its route to understand the mission.</li></ol><Link href="/command">Explore the Command demo <span aria-hidden="true">↗</span></Link></article>
-      <article className={`${styles.platformCard} ${styles.goCard}`}><span className={styles.eyebrow}>Get involved / The people side</span><h3>R3AI Go</h3><p>Try the community cleanup experience with sample routes and a personal activity record.</p><ol className={styles.firstSteps}><li>Browse the map and choose a sample route.</li><li>Review its path and location details.</li><li>Save it to find it again later.</li></ol><Link href="/go">Explore routes in Go <span aria-hidden="true">↗</span></Link></article>
-    </div>
-    <p className={styles.platformNote}>Opens in your browser. No installation needed. Demo data is for exploration, not live deployment.</p>
+  return <section className={styles.platform} id="platform" tabIndex={-1} aria-label="Choose between R3AI Command and R3AI Go">
+    <article className={`${styles.platformPane} ${styles.commandPane}`}>
+      <div className={styles.paneMeta}><span>01 / Robot side</span><span>Observe</span></div>
+      <div className={styles.commandSignal} aria-hidden="true"><i /><i /><i /><svg viewBox="0 0 64 64"><path d="M32 12v7M27 8h10" /><rect x="15" y="19" width="34" height="27" rx="10" /><path d="M15 27h-5v12h5M49 27h5v12h-5M24 52h16M32 46v6" /><circle cx="25" cy="31" r="3" /><circle cx="39" cy="31" r="3" /><path d="M25 39h14" /></svg></div>
+      <div className={styles.paneCopy}><p className={styles.eyebrow}>R3AI Command</p><h2>See the mission<br />through the bot.</h2><p>Watch scans become mapped cleanup routes.</p><Link href="/command">Open Command <span aria-hidden="true">→</span></Link></div>
+    </article>
+    <article className={`${styles.platformPane} ${styles.goPane}`}>
+      <div className={styles.paneMeta}><span>02 / People side</span><span>Act</span></div>
+      <div className={styles.goRoute} aria-hidden="true"><svg viewBox="0 0 180 180"><path d="M26 142C43 91 64 127 83 87s39-18 46-49" /><circle cx="26" cy="142" r="7" /><circle cx="83" cy="87" r="7" /><path d="M143 33c0 18-14 31-14 31s-14-13-14-31a14 14 0 1 1 28 0Z" /><circle cx="129" cy="33" r="4" /></svg></div>
+      <div className={styles.paneCopy}><p className={styles.eyebrow}>R3AI Go</p><h2>Find a route.<br />Move it forward.</h2><p>Explore sample cleanups and save your next step.</p><Link href="/go">Open Go <span aria-hidden="true">→</span></Link></div>
+    </article>
   </section>;
 }
