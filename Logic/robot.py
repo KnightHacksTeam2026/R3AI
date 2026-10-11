@@ -1,4 +1,4 @@
-from item import Item
+from Logic.item import Item
 import sys
 
 class Robot:
