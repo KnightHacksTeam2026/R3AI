@@ -11,7 +11,9 @@ const links = [{ href: "/", label: "Home" }, { href: "/command", label: "Command
 export default function Navbar({ actions, search }: { actions?: ReactNode; search?: ReactNode }) {
   const pathname = usePathname();
   return <div className={styles.surface}>
-    <Link href="/" aria-label="R3AI home" className={styles.brand}><span className={styles.mark} aria-hidden="true">r3</span><span className={styles.identity}>R3AI<span className={styles.subtitle}>Recognize. Recover. Restore.</span></span></Link>
+    <Link href="/" aria-label="R3AI home" className={styles.brand}>
+      <span className={styles.mark} aria-hidden="true">R3<span className={styles.ai}>AI</span></span>
+    </Link>
     {search && <div className={styles.search}>{search}</div>}
     <nav aria-label="Main navigation" className={styles.links}>
       {links.map(({ href, label }) => <Link key={href} href={href} aria-current={(pathname === href || (href !== "/" && pathname.startsWith(`${href}/`))) ? "page" : undefined}>{label}</Link>)}

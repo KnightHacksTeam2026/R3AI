@@ -18,7 +18,7 @@
   --go-paper: #f6f7f2;
   --go-green: #247a60;
   color: var(--go-ink);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-family: var(--font-site);
   background: var(--go-paper);
 }
 .downloadPage *, .appPage *, .installDialog * { box-sizing: border-box; }

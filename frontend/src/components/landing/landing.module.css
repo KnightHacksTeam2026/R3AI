@@ -1,4 +1,4 @@
-.page { background: #101c19; color: #f6f7f2; overflow: clip; font-family: var(--font-geist-sans), Arial, sans-serif; }
+.page { background: #101c19; color: #f6f7f2; overflow: clip; font-family: var(--font-site); }
 .experience { position: relative; height: 100svh; min-height: 660px; isolation: isolate; overflow: hidden; background: radial-gradient(ellipse at 50% 95%, #24473755, transparent 65%), #101c19; }
 .landingNav[data-theme] { position: absolute; top: calc(20px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); z-index: 5; width: min(1200px, calc(100% - 40px)); background: transparent; }
 @media (max-width: 639px) { .landingNav[data-theme] { top: calc(12px + env(safe-area-inset-top)); width: calc(100% - 24px); } }

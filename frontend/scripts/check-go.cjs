@@ -16,6 +16,14 @@ try {
   assert.deepEqual(parseRouteFeed([]), []);
   assert.deepEqual(parseRouteFeed(SAMPLE_ROUTES), SAMPLE_ROUTES);
   assert(SAMPLE_ROUTES.every(route => route.sample && routeLength(route) > 0));
+  // Detect geometry regressions that introduce long straight shortcuts.
+  const { distanceM } = require("../src/components/command/routeGeometry.ts");
+  for (const sample of SAMPLE_ROUTES) {
+    assert(sample.coordinates.length > 20, `${sample.id}: preserve mapped path detail`);
+    for (let i = 1; i < sample.coordinates.length; i++) {
+      assert(distanceM(sample.coordinates[i - 1], sample.coordinates[i]) < 100, `${sample.id}: unexpected gap in mapped path`);
+    }
+  }
   assert(SAMPLE_ROUTES.every(route => distanceToStart(route, DEFAULT_CENTER) < NEARBY_RADIUS_M));
   assert(SAMPLE_ROUTES.every(route => distanceToStart(route, [-74.006, 40.7128]) > NEARBY_RADIUS_M));
   const route = SAMPLE_ROUTES[0];

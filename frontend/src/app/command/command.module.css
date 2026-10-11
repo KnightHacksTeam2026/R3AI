@@ -23,7 +23,7 @@
 
   color: var(--cmd-text);
   background: var(--cmd-bg);
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-site);
   -webkit-font-smoothing: antialiased;
 }
 

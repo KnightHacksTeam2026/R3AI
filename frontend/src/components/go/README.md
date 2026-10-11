@@ -4,7 +4,9 @@
 
 ## Routes and configuration
 
-Without configuration, Go shows three **explicitly labeled sample paths in Orlando**. These are approximate illustrations, not surveyed pedestrian routes or verified waste reports. They are independent of Command's OSRM driving snapshots. No real cleanup backend is included.
+Without configuration, Go shows three **explicitly labeled sample paths in Orlando**. Their geometry follows OpenStreetMap pedestrian-way snapshots, rather than hand-drawn approximations. These are not surveyed routes, verified waste reports, or current access checks. They are independent of Command's OSRM driving snapshots. No real cleanup backend is included.
+
+The 2026-10-11 snapshot in `sampleRouteGeometry.ts` preserves the ordered nodes of ways [67571406](https://www.openstreetmap.org/way/67571406) (Lake Eola footpath), [209303569](https://www.openstreetmap.org/way/209303569) (Gaston Edwards Trail), and [998827545](https://www.openstreetmap.org/way/998827545) (Thornton Park sidewalk). These are open segments, not closed loops. © OpenStreetMap contributors, ODbL. Map tiles may lag source edits; refresh snapshots when paths change. External route feeds retain their supplied geometry without automatic snapping.
 
 Set these public variables before building:
 
@@ -35,7 +37,7 @@ The entire bounded route catalog is fetched without sending the phone's coordina
 
 Use a same-origin endpoint, or configure CORS for your deployed origin. For authenticated or large catalogs, add a backend adapter and viewport pagination rather than putting secrets in public variables.
 
-The map accepts any compatible MapLibre style URL. Its fallback is OpenStreetMap standard raster tiles with visible attribution and normal browser caching. For a production launch, configure a provider appropriate to expected traffic and its attribution requirements. OSM's public service has no availability guarantee: https://operations.osmfoundation.org/policies/tiles/. The service worker does not prefetch or store map tiles.
+The map accepts any compatible MapLibre style URL. Its default is a custom light/dark vector style using OpenFreeMap tiles and fonts, with visible attribution. Theme changes repaint the basemap without resetting overlays. For a production launch, configure a provider appropriate to expected traffic and its attribution requirements. The service worker does not prefetch or store map tiles.
 
 ## Phone location and privacy
 

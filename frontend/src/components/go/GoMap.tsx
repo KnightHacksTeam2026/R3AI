@@ -64,7 +64,7 @@ const GoMap = forwardRef<GoMapHandle, Props>(function GoMap({ routes, selectedId
       if (disposed) return;
       settled = true;
       window.clearTimeout(timeout);
-      instance.addSource("routes", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      instance.addSource("routes", { type: "geojson", tolerance: 0, data: { type: "FeatureCollection", features: [] } });
       instance.addLayer({ id: "route-casing", type: "line", source: "routes", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#ffffff", "line-width": 9, "line-opacity": 0.95 } });
       instance.addLayer({ id: "route-line", type: "line", source: "routes", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": ["case", ["get", "selected"], "#1674ed", "#29845d"], "line-width": ["case", ["get", "selected"], 6, 4], "line-opacity": 0.95 } });
       instance.addSource("location", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -104,7 +104,7 @@ const GoMap = forwardRef<GoMapHandle, Props>(function GoMap({ routes, selectedId
       button.setAttribute("aria-label", `${route.name}${route.sample ? ", sample route" : ""}`);
       button.setAttribute("aria-pressed", String(route.id === selectedId));
       button.addEventListener("click", () => callbacks.current.onSelect(route.id));
-      return new maplibregl.Marker({ element: button, anchor: "bottom" }).setLngLat(route.coordinates[0]).addTo(instance);
+      return new maplibregl.Marker({ element: button, anchor: "center" }).setLngLat(route.coordinates[0]).addTo(instance);
     });
     return () => markers.forEach(marker => marker.remove());
   }, [routes, selectedId, ready]);

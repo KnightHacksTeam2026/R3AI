@@ -9,7 +9,7 @@
   overflow: hidden;
   background: var(--surface-soft);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-site);
   -webkit-font-smoothing: antialiased;
 }
 .explorer button, .explorer input, .explorer select, .explorer textarea { font: inherit; }
@@ -156,7 +156,7 @@
   .install span { display: none; }
 }
 /* Shared R3AI surfaces apply to every view, including forms and empty states. */
-.explorer { background: var(--background); font-family: var(--font-geist-sans), -apple-system, sans-serif; }
+.explorer { background: var(--background); font-family: var(--font-site); }
 .header { z-index: 5; }
 .sheet, .mapNotice, .mapControls > button, .zoom, .install { box-shadow: 0 3px 16px #10251e12; }
 .sheet { backdrop-filter: none; }
