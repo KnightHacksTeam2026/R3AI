@@ -7,15 +7,15 @@ class Item:
     will have a set volume and weight capacity
     '''
 
-    def __init__(self, x_dim: int, y_dim: int, z_dim: int, x_loc: int, y_loc: int, weight: int):
+    def __init__(self, x_dim: int, y_dim: int, z_dim: int, x_loc: float, y_loc: float, weight: int):
         # Dimension tracking
         self.x_dim: int = x_dim
         self.y_dim: int = y_dim
         self.z_dim: int = z_dim
         
         # Location tracking
-        self.x_loc: int = x_loc
-        self.y_loc: int = y_loc
+        self.x_loc: float = x_loc
+        self.y_loc: float = y_loc
         
         # Weight tracking
         self.weight: int = weight
