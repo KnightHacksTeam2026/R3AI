@@ -41,104 +41,128 @@ class Robot:
         self.contained_items = []
 
     def storeItem(self, item: Item, orientation=None):
-        '''Store one item using the 2D packing model and return whether it was stored.'''
-        # Get the orientation of the item
+        '''Store one item using the selected orientation and return whether it was stored.'''
         if orientation is None:
             return False
 
         x_dim, y_dim, z_dim = orientation
+        if (
+            item.weight > self.available_weight or
+            x_dim > self.x_available or
+            y_dim > self.y_available or
+            z_dim > self.z_dim
+        ):
+            return False
+
         self.x_available -= x_dim
         self.y_available -= y_dim
         self.available_weight -= item.weight
         self.contained_items.append(item)
         return True
 
+    def _valid_orientations(self, item: Item):
+        return [orientation for orientation in item.orientations() if orientation[2] <= self.z_dim]
+
+    def _choose_placement(self, item: Item, free_rectangles: list[tuple[int, int, int, int]]):
+        '''Best-short-side-fit heuristic over free rectangles.'''
+        best = None
+        for orientation in self._valid_orientations(item):
+            width, height, _ = orientation
+            for rect_index, (_, _, rect_width, rect_height) in enumerate(free_rectangles):
+                if width > rect_width or height > rect_height:
+                    continue
+                short_side = min(rect_width - width, rect_height - height)
+                long_side = max(rect_width - width, rect_height - height)
+                waste = rect_width * rect_height - width * height
+                score = (short_side, long_side, waste, -width * height)
+                if best is None or score < best[0]:
+                    best = (score, rect_index, orientation)
+        return best
+
+    def _split_free_rectangles(self, free_rectangles: list[tuple[int, int, int, int]], used_rect: tuple[int, int, int, int]):
+        used_x, used_y, used_width, used_height = used_rect
+        next_rectangles = []
+        for rect_x, rect_y, rect_width, rect_height in free_rectangles:
+            if (
+                used_x >= rect_x + rect_width or
+                used_x + used_width <= rect_x or
+                used_y >= rect_y + rect_height or
+                used_y + used_height <= rect_y
+            ):
+                next_rectangles.append((rect_x, rect_y, rect_width, rect_height))
+                continue
+
+            if used_x > rect_x:
+                next_rectangles.append((rect_x, rect_y, used_x - rect_x, rect_height))
+            if used_x + used_width < rect_x + rect_width:
+                next_rectangles.append((used_x + used_width, rect_y, rect_x + rect_width - (used_x + used_width), rect_height))
+            if used_y > rect_y:
+                next_rectangles.append((rect_x, rect_y, rect_width, used_y - rect_y))
+            if used_y + used_height < rect_y + rect_height:
+                next_rectangles.append((rect_x, used_y + used_height, rect_width, rect_y + rect_height - (used_y + used_height)))
+
+        pruned = []
+        for index, rect in enumerate(next_rectangles):
+            if rect[2] <= 0 or rect[3] <= 0:
+                continue
+            contained = False
+            for other_index, other in enumerate(next_rectangles):
+                if index == other_index:
+                    continue
+                if (
+                    rect[0] >= other[0] and rect[1] >= other[1] and
+                    rect[0] + rect[2] <= other[0] + other[2] and
+                    rect[1] + rect[3] <= other[1] + other[3]
+                ):
+                    contained = True
+                    break
+            if not contained:
+                pruned.append(rect)
+        return pruned
+
     def storeItems(self, item_list: list[Item]):
-        '''Store as many items as possible with 2D DP under a fixed z limit.'''
-        # The starting state represents what space is available
-        start_state = (
-            self.x_available,
-            self.y_available,
-            self.available_weight)
-
-        # Orientation map represents the list of possible orientations for all items
-        orientation_map = [item.orientations() for item in item_list]
-        item_count = len(item_list)
-
-        # Dynamic programming list that contains dictionaries of data per item
-        # Initialize the dp with the start state at 0
-        dp = [{} for _ in range(item_count + 1)]
-        parent = [{} for _ in range(item_count + 1)]
-        dp[0][start_state] = 0
-
-        for i in range(1, item_count + 1):
-            item = item_list[i-1]
-            
-            # Iterate through each state after adding an item to the robot
-            # State: represents the state of the robot at that time (x, y, weight)
-            # Count: represents how good that state is (almost like a rating)
-            for state, count in dp[i-1].items():
-                x_available, y_available, available_weight = state
-
-                existing_skip = dp[i].get(state, -1)
-                if count > existing_skip:
-                    dp[i][state] = count
-                    parent[i][state] = (state, None)
-
-                # Try each orientation for each item
-                for orientation in orientation_map[i - 1]:
-                    x_dim, y_dim, z_dim = orientation
-                    if (
-                        item.weight <= available_weight and
-                        x_dim <= x_available and
-                        y_dim <= y_available and
-                        z_dim <= self.z_dim
-                    ):
-                        # An acceptable item means you must calculate the next available space
-                        next_state = (
-                            x_available - x_dim,
-                            y_available - y_dim,
-                            available_weight - item.weight)
-                        
-                        # Calculate the next count and determine if this set of items
-                        # and orientation is better
-                        next_count = count + 1
-                        existing_take = dp[i].get(next_state, -1)
-                        if next_count > existing_take:
-                            dp[i][next_state] = next_count
-                            parent[i][next_state] = (state, orientation)
-
-        # Get the best state so that we can go backwards and build the contained_items list
-        # The very end of dp stores a dictionary with possible states, but iteration is necessary
-        # to determine the best state. Find the max, find the state
-        best_states = dp[item_count]
-        best_state = None
-        best_count = -1
-        for state, count in best_states.items():
-            if count > best_count:
-                best_count = count
-                best_state = state
-
-        # Go backwards and plan out the items that were chosen
-        selected_plan = []
+        '''Store as many items as possible with a 2D free-rectangle packing heuristic.'''
+        free_rectangles = [(0, 0, self.x_available, self.y_available)]
+        packed: list[tuple[int, tuple[int, int, int]]] = []
         unstored_items = []
-        current_state = best_state
-        for i in range(item_count, 0, -1):
-            previous_state, orientation = parent[i][current_state]
-            
-            # If orientation is valid, then add to plan, else add to unstored
-            if orientation is not None: selected_plan.append((i-1, orientation))
-            else: unstored_items.append(item_list[i-1])
-            
-            # Update state to the previous state (backwards logic)
-            current_state = previous_state
+        remaining_weight = self.available_weight
 
-        # Go forward storing the items you found in the selected plan
-        for i, orientation in reversed(selected_plan):
-            item = item_list[i]
-            if not self.storeItem(item, orientation):
+        candidate_indices = sorted(
+            range(len(item_list)),
+            key=lambda index: (
+                -max((orientation[0] * orientation[1] for orientation in self._valid_orientations(item_list[index])), default=0),
+                -item_list[index].weight,
+            ),
+        )
+
+        for index in candidate_indices:
+            item = item_list[index]
+            if item.weight > remaining_weight:
                 unstored_items.append(item)
+                continue
 
+            placement = self._choose_placement(item, free_rectangles)
+            if placement is None:
+                unstored_items.append(item)
+                continue
+
+            _, rect_index, orientation = placement
+            rect_x, rect_y, _, _ = free_rectangles[rect_index]
+            width, height, _ = orientation
+            used_rect = (rect_x, rect_y, width, height)
+            free_rectangles = self._split_free_rectangles(free_rectangles, used_rect)
+            remaining_weight -= item.weight
+            packed.append((index, orientation))
+
+        packed_indices = {index for index, _ in packed}
+        unstored_items.extend(item for index, item in enumerate(item_list) if index not in packed_indices and item not in unstored_items)
+
+        used_width = sum(orientation[0] for _, orientation in packed)
+        used_height = sum(orientation[1] for _, orientation in packed)
+        self.x_available = max((rect[2] for rect in free_rectangles), default=self.x_dim - min(self.x_dim, used_width))
+        self.y_available = max((rect[3] for rect in free_rectangles), default=self.y_dim - min(self.y_dim, used_height))
+        self.available_weight = remaining_weight
+        self.contained_items = [item_list[index] for index, _ in packed]
         return unstored_items
 
     def planCollectionRuns(self, items: list[Item], starting_x=0.0, starting_y=0.0):
