@@ -1,5 +1,7 @@
-from Logic.item import Item
-import sys
+from Logic.R3_BOT.item import Item
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 class Robot:
     
@@ -138,6 +140,67 @@ class Robot:
                 unstored_items.append(item)
 
         return unstored_items
+
+    def getPath(self, starting_x: float=0.0, starting_y: float=0.0):
+        '''Implements OSRM API logic for getting the quickest path between items'''
+        if len(self.contained_items) <= 1:
+            return list(self.contained_items)
+
+        coords = [(starting_x, starting_y)]
+        for item in self.contained_items:
+            coords.append((item.x_loc, item.y_loc))
+
+        coord_string = ";".join(f"{x},{y}" for x, y in coords)
+        url = (
+            "https://router.project-osrm.org/trip/v1/driving/"
+            f"{coord_string}?source=first&roundtrip=false&steps=false&overview=false")
+        data = fetch_json(url)
+
+        if "waypoints" not in data or len(data["waypoints"]) != len(coords):
+            raise ValueError("OSRM did not return a valid waypoint ordering.")
+
+        waypoint_order = []
+        for input_index, waypoint in enumerate(data["waypoints"]):
+            waypoint_order.append({
+                "input_index": input_index,
+                "waypoint_index": waypoint["waypoint_index"],
+            })
+
+        return [
+            self.contained_items[waypoint["input_index"] - 1]
+            for waypoint in sorted(
+                (waypoint for waypoint in waypoint_order if waypoint["input_index"] != 0),
+                key=lambda waypoint: waypoint["waypoint_index"]
+            )
+        ]
+
+def fetch_json(url: str):
+    request = Request(
+        url,
+        headers={
+            "Accept": "application/json",
+            "User-Agent": "R3AI-Robot/1.0",
+        },
+    )
+
+    try:
+        with urlopen(request) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except HTTPError as error:
+        try:
+            body = json.loads(error.read().decode("utf-8"))
+            message = body.get("message") or body.get("code") or f"status {error.code}"
+        except Exception:
+            message = f"status {error.code}"
+        raise ValueError(f"OSRM request failed: {message}.") from error
+    except URLError as error:
+        raise ValueError(f"OSRM request failed: {error.reason}.") from error
+
+    if body.get("code") != "Ok":
+        message = body.get("message") or body.get("code") or "unknown error"
+        raise ValueError(f"OSRM request failed: {message}.")
+
+    return body
 
 if __name__ == "__main__":
     import random
