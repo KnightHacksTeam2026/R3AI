@@ -1,2 +1,0 @@
-Purpose -> How will I integrate the Robot and Satellite data transfer?
-

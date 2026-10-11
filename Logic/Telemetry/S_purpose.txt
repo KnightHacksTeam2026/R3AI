@@ -1,3 +1,0 @@
-Purpose -> Satellite absorbing information given by data.
-
-Orbit -> the Sun-Synchronous Orbit (SSO)Sun-Synchronous Orbit (SSO)

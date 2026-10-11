@@ -1,5 +1,0 @@
-Python to Javascript... why the decision?
-    Will it handle fetching website data more efficiently?
-
-
-
