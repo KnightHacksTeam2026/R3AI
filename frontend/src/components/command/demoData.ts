@@ -2,7 +2,7 @@ import { STREET_ROUTES } from "./streetRoutes";
 import { routeFromLegs, routePosition } from "./routeGeometry";
 import type { Coordinate, RobotState, WasteObservation } from "./types";
 
-// Assignment metadata stays synthetic, but robot scan missions come from backend logic.
+// All robot missions are locally generated synthetic data for the demo.
 export const DEMO_AREAS = [
   { id: "ORL", name: "Orlando", center: [-81.3755, 28.5422] },
   { id: "LON", name: "London", center: [-0.1246, 51.5086] },
@@ -22,49 +22,14 @@ const CATEGORIES = [
   { name: "Mixed litter", itemMass: 0.12 },
 ];
 
-const DEFAULT_SCAN_RADIUS_MILES = 10;
-const DEFAULT_ITEM_COUNT = 12;
-const DEFAULT_ROBOT_DIMENSIONS = { x: 15, y: 15, z: 3, weightCapacityKg: 20, life: 100 };
+const DEFAULT_CAPACITY_KG = 20;
+const DEFAULT_BATTERY_PCT = 96;
+let missionSequence = 0;
 
 type DemoArea = typeof DEMO_AREAS[number];
-type BackendMissionItem = {
-  id: string;
-  category: string;
-  longitude: number;
-  latitude: number;
-  xDim: number;
-  yDim: number;
-  zDim: number;
-  weightKg: number;
-  itemCount: number;
-  density: WasteObservation["density"];
-  area: string;
-  pickupRank: number | null;
-  stored: boolean;
-};
-type BackendMissionResponse = {
-  botId: string;
-  areaId: string;
-  areaName: string;
-  startLongitude: number;
-  startLatitude: number;
-  routeCoordinates: Coordinate[];
-  items: BackendMissionItem[];
-  storedItemIds: string[];
-  unstoredItemIds: string[];
-  pickupOrderIds: string[];
-  humanRequiredItemIds: string[];
-  runs: { routeCoordinates: Coordinate[]; pickupOrderIds: string[] }[];
-  robotState: {
-    xAvailable: number;
-    yAvailable: number;
-    availableWeight: number;
-    weightCapacityKg: number;
-    zLimit: number;
-    life: number;
-  };
-};
 type MissionSlice = { bot: RobotState; observations: WasteObservation[] };
+
+type RouteSource = RobotState["route"]["source"];
 
 export type DemoState = {
   bots: RobotState[];
@@ -72,56 +37,14 @@ export type DemoState = {
   humanRequiredItems?: WasteObservation[];
 };
 
-function createFallbackAreaSlice(area: DemoArea, areaIndex: number, withHistory: boolean): MissionSlice {
-  const type = "ground" as const;
-  const id = `R3-${area.id}-G01`;
-  const [lon, lat] = area.center;
-  const street = STREET_ROUTES[area.id];
-  const preview: Coordinate[] = [[lon, lat], [lon + 0.002, lat], [lon + 0.002, lat + 0.002], [lon, lat + 0.002]];
-  const waypoints = street?.waypoints ?? preview;
-  const legs = street ? street.legs : waypoints.slice(1).map((point, index) => [waypoints[index], point]);
-  const route = routeFromLegs(legs, street ? "street-snapshot" : "unverified-preview");
-  const traveledM = withHistory && route.source !== "unverified-preview" ? route.distanceM * (0.35 + (areaIndex % 3) * 0.1) : 0;
-  const { position } = routePosition(route, traveledM);
-  const observations = route.stopDistancesM.map((stopDistanceM, stopIndex): WasteObservation => {
-    const category = CATEGORIES[(areaIndex + stopIndex) % CATEGORIES.length];
-    const itemCount = 6 + ((areaIndex * 17 + stopIndex * 11) % 55);
-    const point = legs[stopIndex].at(-1)!;
-    return {
-      id: `SYN-${area.id}-G${stopIndex + 1}`,
-      botId: id,
-      area: area.name,
-      category: category.name,
-      longitude: point[0],
-      latitude: point[1],
-      massKg: Number((itemCount * category.itemMass).toFixed(2)),
-      itemCount,
-      density: itemCount < 20 ? "sparse" : itemCount < 40 ? "moderate" : "dense",
-      confidence: null,
-      source: "synthetic",
-      stopDistanceM,
-      status: stopDistanceM <= traveledM ? "collected" : "mapped",
-    };
-  });
+function seededFraction(seed: number) {
+  const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+  return value - Math.floor(value);
+}
 
-  return {
-    bot: {
-      id,
-      type,
-      area: area.name,
-      longitude: position[0],
-      latitude: position[1],
-      capacityKg: 80,
-      initialBatteryPct: 96 - areaIndex * 5,
-      batteryPct: 96 - areaIndex * 5 - (route.distanceM ? traveledM / route.distanceM * 18 : 0),
-      payloadKg: observations.filter(item => item.status === "collected").reduce((sum, item) => sum + item.massKg, 0),
-      status: route.source === "unverified-preview" ? "route-unavailable" : traveledM > 0 ? "paused" : "standby",
-      route,
-      distanceM: traveledM,
-      missionStatus: traveledM > 0 ? "paused" : "ready",
-    },
-    observations,
-  };
+function nextMissionSeed() {
+  missionSequence += 1;
+  return missionSequence;
 }
 
 function buildLegsFromRoute(points: Coordinate[]): Coordinate[][] {
@@ -130,106 +53,168 @@ function buildLegsFromRoute(points: Coordinate[]): Coordinate[][] {
   return points.slice(1).map((point, index) => [points[index], point]);
 }
 
-function missionToSlice(area: DemoArea, areaIndex: number, mission: BackendMissionResponse): MissionSlice {
-  const start: Coordinate = [mission.startLongitude, mission.startLatitude];
-  const runs = mission.runs.map(run => ({
-    pickupOrderIds: run.pickupOrderIds,
-    route: routeFromLegs(buildLegsFromRoute(run.routeCoordinates), "osrm-trip"),
-  }));
-  const route = runs[0]?.route ?? routeFromLegs([[start, start]], "osrm-trip");
-  const humanIds = new Set(mission.humanRequiredItemIds);
+function areaGeometry(area: DemoArea) {
+  const start = area.center as Coordinate;
+  const street = STREET_ROUTES[area.id];
+  const preview: Coordinate[] = [
+    start,
+    [start[0] + 0.002, start[1]],
+    [start[0] + 0.002, start[1] + 0.002],
+    [start[0], start[1] + 0.002],
+  ];
+  const points = street?.waypoints ?? preview;
+  const legs = street ? street.legs : buildLegsFromRoute(points);
+  return {
+    start,
+    routeSource: street ? "street-snapshot" as RouteSource : "unverified-preview" as RouteSource,
+    stopPoints: legs.map((leg) => leg.at(-1) as Coordinate),
+  };
+}
 
-  const observations = mission.items.map((item): WasteObservation => {
-    const stopIndex = runs[0]?.pickupOrderIds.indexOf(item.id) ?? -1;
-    const stopDistanceM = stopIndex >= 0 ? route.stopDistancesM[stopIndex] : Infinity;
-    return {
-      id: item.id,
-      botId: mission.botId,
-      area: area.name,
-      category: item.category,
-      longitude: item.longitude,
-      latitude: item.latitude,
-      massKg: item.weightKg,
-      itemCount: item.itemCount,
-      density: item.density,
-      confidence: null,
-      source: "synthetic",
-      stopDistanceM,
-      status: "mapped",
-      humanRequired: humanIds.has(item.id),
-      dimensions: [item.xDim, item.yDim, item.zDim],
-    };
+function buildSyntheticObservation(area: DemoArea, botId: string, itemId: string, categoryIndex: number, point: Coordinate, massScale: number, itemCount: number, humanRequired: boolean): WasteObservation {
+  const category = CATEGORIES[categoryIndex % CATEGORIES.length];
+  return {
+    id: itemId,
+    botId,
+    area: area.name,
+    category: category.name,
+    longitude: point[0],
+    latitude: point[1],
+    massKg: Number((itemCount * category.itemMass * massScale).toFixed(2)),
+    itemCount,
+    density: itemCount < 18 ? "sparse" : itemCount < 36 ? "moderate" : "dense",
+    confidence: null,
+    source: "synthetic",
+    stopDistanceM: Infinity,
+    status: "mapped",
+    humanRequired,
+    dimensions: humanRequired ? [18, 18, 5] : [3, 3, 2],
+  };
+}
+
+function createSyntheticMissionSlice(area: DemoArea, areaIndex: number, withHistory: boolean, missionSeed: number): MissionSlice {
+  const { start, routeSource, stopPoints } = areaGeometry(area);
+  const botId = `R3-${area.id}-G01`;
+  const collectableCount = 5 + ((areaIndex + missionSeed) % 4);
+  const humanRequiredCount = (areaIndex + missionSeed) % 2;
+  const runCount = Math.max(1, Math.min(3, Math.ceil(collectableCount / 3)));
+  const runBuckets = Array.from({ length: runCount }, () => [] as WasteObservation[]);
+  const collectableItems: WasteObservation[] = [];
+
+  for (let index = 0; index < collectableCount; index++) {
+    const stop = stopPoints[(missionSeed + index) % stopPoints.length];
+    const offsetPoint: Coordinate = [
+      Number((stop[0] + (seededFraction(missionSeed * 17 + index) - 0.5) * 0.0012).toFixed(6)),
+      Number((stop[1] + (seededFraction(missionSeed * 29 + index) - 0.5) * 0.0012).toFixed(6)),
+    ];
+    const item = buildSyntheticObservation(
+      area,
+      botId,
+      `SYN-${area.id}-${missionSeed.toString().padStart(3, "0")}-C${(index + 1).toString().padStart(2, "0")}`,
+      areaIndex + missionSeed + index,
+      offsetPoint,
+      1,
+      8 + Math.floor(seededFraction(missionSeed * 11 + index) * 28),
+      false,
+    );
+    collectableItems.push(item);
+    runBuckets[index % runCount].push(item);
+  }
+
+  const humanRequiredItems = Array.from({ length: humanRequiredCount }, (_, index) => {
+    const stop = stopPoints[(missionSeed + collectableCount + index) % stopPoints.length];
+    const offsetPoint: Coordinate = [
+      Number((stop[0] + (seededFraction(missionSeed * 41 + index) - 0.5) * 0.0015).toFixed(6)),
+      Number((stop[1] + (seededFraction(missionSeed * 53 + index) - 0.5) * 0.0015).toFixed(6)),
+    ];
+    return buildSyntheticObservation(
+      area,
+      botId,
+      `SYN-${area.id}-${missionSeed.toString().padStart(3, "0")}-H${(index + 1).toString().padStart(2, "0")}`,
+      areaIndex + missionSeed + collectableCount + index,
+      offsetPoint,
+      1.2,
+      10 + Math.floor(seededFraction(missionSeed * 67 + index) * 22),
+      true,
+    );
   });
 
+  const runs = runBuckets.filter((bucket) => bucket.length).map((bucket) => {
+    const route = routeFromLegs(buildLegsFromRoute([start, ...bucket.map((item) => [item.longitude, item.latitude] as Coordinate)]), routeSource);
+    bucket.forEach((item, stopIndex) => {
+      item.stopDistanceM = route.stopDistancesM[stopIndex] ?? route.distanceM;
+    });
+    return { route, pickupOrderIds: bucket.map((item) => item.id) };
+  });
+
+  const route = runs[0]?.route ?? routeFromLegs([[start, start]], routeSource);
+  let distanceM = 0;
+  let batteryPct = DEFAULT_BATTERY_PCT - areaIndex * 5;
+  let payloadKg = 0;
+  let missionStatus: RobotState["missionStatus"] = "ready";
+  let status: RobotState["status"] = routeSource === "unverified-preview" ? "route-unavailable" : "standby";
+  let longitude = start[0];
+  let latitude = start[1];
+
+  if (withHistory && route.source !== "unverified-preview") {
+    distanceM = route.distanceM * (0.2 + seededFraction(missionSeed * 73 + areaIndex) * 0.25);
+    batteryPct -= route.distanceM ? distanceM / route.distanceM * 18 : 0;
+    const { position } = routePosition(route, distanceM);
+    longitude = position[0];
+    latitude = position[1];
+    missionStatus = "paused";
+    status = "paused";
+    for (const item of collectableItems) {
+      if (item.stopDistanceM <= distanceM) {
+        item.status = "collected";
+        payloadKg += item.massKg;
+      }
+    }
+  }
+
+  const observations = [...collectableItems, ...humanRequiredItems];
   return {
     bot: {
-      id: mission.botId,
+      id: botId,
       type: "ground",
       area: area.name,
-      longitude: start[0],
-      latitude: start[1],
-      capacityKg: mission.robotState.weightCapacityKg,
-      initialBatteryPct: 96 - areaIndex * 5,
-      batteryPct: 96 - areaIndex * 5,
-      payloadKg: 0,
-      status: "standby",
+      longitude,
+      latitude,
+      capacityKg: DEFAULT_CAPACITY_KG,
+      initialBatteryPct: DEFAULT_BATTERY_PCT - areaIndex * 5,
+      batteryPct,
+      payloadKg: Number(payloadKg.toFixed(2)),
+      status,
       route,
-      distanceM: 0,
-      missionStatus: "ready",
-      missionIssue: runs.length ? undefined : "human-only",
+      distanceM,
+      missionStatus,
+      missionIssue: collectableItems.length ? undefined : "human-only",
       collection: { start, runs, runIndex: 0 },
     },
     observations,
   };
 }
 
-async function requestMission(area: DemoArea): Promise<BackendMissionResponse> {
-  const response = await fetch("/api/command/scan", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      areaId: area.id,
-      areaName: area.name,
-      botId: `R3-${area.id}-G01`,
-      startLongitude: area.center[0],
-      startLatitude: area.center[1],
-      scanRadiusMiles: DEFAULT_SCAN_RADIUS_MILES,
-      itemCount: DEFAULT_ITEM_COUNT,
-      robotXDim: DEFAULT_ROBOT_DIMENSIONS.x,
-      robotYDim: DEFAULT_ROBOT_DIMENSIONS.y,
-      robotZDim: DEFAULT_ROBOT_DIMENSIONS.z,
-      weightCapacityKg: DEFAULT_ROBOT_DIMENSIONS.weightCapacityKg,
-      life: DEFAULT_ROBOT_DIMENSIONS.life,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Mission scan failed with status ${response.status}`);
-  }
-
-  return response.json() as Promise<BackendMissionResponse>;
-}
-
 function areaIndexForBot(botId: string): number {
-  return DEMO_AREAS.findIndex(area => botId.includes(`-${area.id}-`));
+  return DEMO_AREAS.findIndex((area) => botId.includes(`-${area.id}-`));
 }
 
-export function createDemoState(withHistory = true): DemoState {
-  const slices = DEMO_AREAS.map((area, areaIndex) => createFallbackAreaSlice(area, areaIndex, withHistory));
+function buildDemoState(withHistory: boolean, baseSeed: number): DemoState {
+  const slices = DEMO_AREAS.map((area, areaIndex) => createSyntheticMissionSlice(area, areaIndex, withHistory, baseSeed + areaIndex + 1));
+  const observations = slices.flatMap((slice) => slice.observations);
   return {
-    bots: slices.map(slice => slice.bot),
-    observations: slices.flatMap(slice => slice.observations),
+    bots: slices.map((slice) => slice.bot),
+    observations,
+    humanRequiredItems: observations.filter((item) => item.humanRequired),
   };
+}
+
+export function createDemoState(withHistory = false): DemoState {
+  return buildDemoState(withHistory, 1000);
 }
 
 export async function hydrateDemoState(): Promise<DemoState> {
-  const slices = await Promise.all(DEMO_AREAS.map(async (area, areaIndex) => missionToSlice(area, areaIndex, await requestMission(area))));
-  const observations = slices.flatMap(slice => slice.observations);
-  return {
-    bots: slices.map(slice => slice.bot),
-    observations,
-    humanRequiredItems: observations.filter(item => item.humanRequired),
-  };
+  return buildDemoState(false, nextMissionSeed() * 100);
 }
 
 export async function regenerateBotMission(botId: string): Promise<MissionSlice> {
@@ -238,23 +223,22 @@ export async function regenerateBotMission(botId: string): Promise<MissionSlice>
     throw new Error(`Unknown bot id: ${botId}`);
   }
 
-  const area = DEMO_AREAS[areaIndex];
-  return missionToSlice(area, areaIndex, await requestMission(area));
+  return createSyntheticMissionSlice(DEMO_AREAS[areaIndex], areaIndex, false, nextMissionSeed() * 100 + areaIndex);
 }
 
 export function replaceMissionInState(state: DemoState, mission: MissionSlice, autoStart = false): DemoState {
   const bot = autoStart && mission.bot.collection?.runs.length
     ? { ...mission.bot, missionStatus: "running" as const, status: "collecting" as const }
     : mission.bot;
-  const humanItems = new Map((state.humanRequiredItems ?? []).map(item => [item.id, item]));
+  const humanItems = new Map((state.humanRequiredItems ?? []).map((item) => [item.id, item]));
   for (const item of [...state.observations, ...mission.observations]) {
     if (item.humanRequired) humanItems.set(item.id, item);
   }
   return {
     ...state,
-    bots: state.bots.map(current => current.id === bot.id ? bot : current),
+    bots: state.bots.map((current) => current.id === bot.id ? bot : current),
     observations: [
-      ...state.observations.filter(item => item.botId !== bot.id),
+      ...state.observations.filter((item) => item.botId !== bot.id),
       ...mission.observations,
     ],
     humanRequiredItems: [...humanItems.values()],
@@ -276,11 +260,11 @@ export function advanceSimulation(state: DemoState, seconds: number): DemoState 
     const { position } = routePosition(bot.route, traveledM);
     const complete = traveledM >= bot.route.distanceM;
 
-    observations = observations.map(item => {
+    observations = observations.map((item) => {
       if (item.botId !== bot.id || item.humanRequired || (activeIds && !activeIds.has(item.id)) || item.stopDistanceM > traveledM) return item;
       return item.status === "collected" ? item : { ...item, status: "collected" };
     });
-    const payloadKg = observations.filter(item => item.botId === bot.id && item.status === "collected" && (!activeIds || activeIds.has(item.id)))
+    const payloadKg = observations.filter((item) => item.botId === bot.id && item.status === "collected" && (!activeIds || activeIds.has(item.id)))
       .reduce((sum, item) => sum + item.massKg, 0);
 
     if (complete && collection) {
@@ -288,7 +272,7 @@ export function advanceSimulation(state: DemoState, seconds: number): DemoState 
       const next = collection.runs[nextIndex];
       // Return/unload is instantaneous in this simulation; collected history remains.
       if (next) {
-        observations = observations.map(item => {
+        observations = observations.map((item) => {
           if (item.botId !== bot.id) return item;
           const stopIndex = next.pickupOrderIds.indexOf(item.id);
           return { ...item, stopDistanceM: stopIndex >= 0 ? next.route.stopDistancesM[stopIndex] : Infinity };
@@ -307,7 +291,13 @@ export function advanceSimulation(state: DemoState, seconds: number): DemoState 
         missionStatus: "complete", status: "complete",
       };
     }
-    return { ...bot, payloadKg, batteryPct, distanceM: traveledM, longitude: position[0], latitude: position[1],
+    return {
+      ...bot,
+      payloadKg,
+      batteryPct,
+      distanceM: traveledM,
+      longitude: position[0],
+      latitude: position[1],
       missionStatus: complete ? "complete" : batteryPct <= 0 ? "paused" : "running",
       status: complete ? "complete" : batteryPct <= 0 ? "low-battery" : "collecting",
     };

@@ -9,10 +9,9 @@ type MissionPanelProps = {
   onToggleMission: () => void;
   onReset: () => void;
   resetting: boolean;
-  scanUnavailable: boolean;
 };
 
-export default function MissionPanel({ observations, robot, onToggleMission, onReset, resetting, scanUnavailable }: MissionPanelProps) {
+export default function MissionPanel({ observations, robot, onToggleMission, onReset, resetting }: MissionPanelProps) {
   const collected = observations.filter(item => item.status === "collected");
   const recovered = collected.reduce((sum, item) => sum + item.massKg, 0);
   const estimated = observations.reduce((sum, item) => sum + item.massKg, 0);
@@ -21,29 +20,25 @@ export default function MissionPanel({ observations, robot, onToggleMission, onR
   const humanRequired = observations.filter(item => item.humanRequired).length;
   const hasRuns = Boolean(robot.collection?.runs.length);
   const humanOnly = robot.missionIssue === "human-only";
-  const primaryDisabled = robot.missionStatus === "complete" || scanUnavailable || unavailable || robot.batteryPct <= 0 || !hasRuns;
+  const primaryDisabled = robot.missionStatus === "complete" || unavailable || robot.batteryPct <= 0 || !hasRuns;
   const primaryLabel = robot.batteryPct <= 0
     ? "Battery empty"
-    : scanUnavailable
-      ? "Scan unavailable"
-      : unavailable
-        ? "Route unavailable"
-        : humanOnly
-          ? "Human pickup required"
-          : !hasRuns
-            ? "No route available"
-            : robot.missionStatus === "running"
-              ? "Pause simulation"
-              : robot.missionStatus === "paused"
-                ? "Resume simulation"
-                : robot.missionStatus === "complete"
-                  ? "Complete"
-                  : "Run simulation";
-  const missionNote = scanUnavailable
-    ? "Mission generation failed. The map preview is still available, but this bot needs a successful rescan before it can run."
-    : humanOnly
-      ? "This scan found items, but none fit within the robot's storage limits. Those pickups require human handling."
-      : null;
+    : unavailable
+      ? "Route unavailable"
+      : humanOnly
+        ? "Human pickup required"
+        : !hasRuns
+          ? "No route available"
+          : robot.missionStatus === "running"
+            ? "Pause simulation"
+            : robot.missionStatus === "paused"
+              ? "Resume simulation"
+              : robot.missionStatus === "complete"
+                ? "Complete"
+                : "Run simulation";
+  const missionNote = humanOnly
+    ? "This synthetic mission generated only oversized items, so those pickups require human handling."
+    : null;
 
   return <GlassPanel className="p-4 sm:p-5">
     <div className="mb-3 flex items-center justify-between gap-2"><div><p className="command-kicker">Selected bot · {robot.missionStatus}</p><h2 className="mt-1 font-semibold">{robot.id}</h2></div><span className={`command-bot-chip ${robot.type}`}><BotIcon type={robot.type} /></span></div>
@@ -64,8 +59,8 @@ export default function MissionPanel({ observations, robot, onToggleMission, onR
     <div className="mt-2 flex justify-between text-xs"><span className="text-[var(--cmd-muted)]">Collected / remaining mass</span><span>{recovered.toFixed(2)} / {(estimated - recovered).toFixed(2)} kg</span></div>
     <div className="mt-2 flex justify-between text-xs"><span className="text-[var(--cmd-muted)]">Payload / capacity</span><span>{`${robot.payloadKg.toFixed(2)} / ${robot.capacityKg} kg`}</span></div>
     <details className="mt-4 text-[11px] leading-relaxed text-[var(--cmd-muted)]"><summary className="cursor-pointer py-2">Simulation & route notes</summary><p className="mt-2">
-      {unavailable ? "Unverified waypoint preview only. Ground movement is disabled until street-route data is available." : robot.collection ? "OSRM orders each load's pickups; displayed connections are straight-line previews, not street geometry. Return and unloading at base are not animated." : <>OSRM driving-route snapshot · <a className="underline" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>. Not live obstacle or robot-access clearance.</>}
-      {" "}Each load plays in 40 seconds. Backend scans start empty; new trash is generated only after all planned loads finish. A scan with no collectable items waits for Reset. No physical bot or API telemetry connection.
+      {unavailable ? "Unverified waypoint preview only. Ground movement is disabled until street-route data is available." : robot.collection ? "Synthetic loads are generated locally for the demo; displayed connections are straight-line previews, not street geometry. Return and unloading at base are not animated." : <>Street-route snapshot · <a className="underline" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors</a>. Not live obstacle or robot-access clearance.</>}
+      {" "}Each load plays in 40 seconds. Synthetic missions start empty; new trash is generated only after all planned loads finish. A mission with no collectable items waits for Reset. No physical bot or external telemetry connection.
     </p></details>
   </GlassPanel>;
 }

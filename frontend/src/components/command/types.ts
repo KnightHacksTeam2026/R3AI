@@ -39,7 +39,7 @@ export type RobotState = {
   route: BotRoute;
   distanceM: number;
   missionStatus: MissionStatus;
-  missionIssue?: "scan-unavailable" | "human-only";
+  missionIssue?: "human-only";
   collection?: {
     start: Coordinate;
     runIndex: number;
