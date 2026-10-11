@@ -16,6 +16,7 @@ export default function BotTelemetryPanel({ robot }: { robot: RobotState }) {
   const details = [
     { label: "Bot status", value: robot.status.replaceAll("-", " ") },
     { label: "Mission", value: robot.missionStatus },
+    { label: "Storage bay", value: `${robot.dimensions[0]} × ${robot.dimensions[1]} × ${robot.dimensions[2]}` },
     { label: "Distance traveled", value: formatDistance(robot.distanceM) },
     { label: "Distance remaining", value: formatDistance(Math.max(0, robot.route.distanceM - robot.distanceM)) },
     { label: "Available capacity", value: `${Math.max(0, robot.capacityKg - robot.payloadKg).toFixed(2)} kg` },

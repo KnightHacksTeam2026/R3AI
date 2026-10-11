@@ -119,10 +119,13 @@ export default function CommandPage() {
   async function resetMission() {
     const botId = selectedBotId;
     setResettingBotId(botId);
-    const mission = await regenerateBotMission(botId);
-    setDemo(current => replaceMissionInState(current, mission));
-    refreshingBots.current.delete(botId);
-    setResettingBotId(current => current === botId ? null : current);
+    try {
+      const mission = await regenerateBotMission(botId);
+      setDemo(current => replaceMissionInState(current, mission));
+      refreshingBots.current.delete(botId);
+    } finally {
+      setResettingBotId(current => current === botId ? null : current);
+    }
   }
 
   const botsPanel = <RobotPanel bots={demo.bots} mapCenter={mapCenter} selectedId={selectedBotId} onSelect={selectBot} />;

@@ -31,6 +31,7 @@ export type RobotState = {
   area: string;
   longitude: number;
   latitude: number;
+  dimensions: [number, number, number];
   capacityKg: number;
   payloadKg: number;
   initialBatteryPct: number;
