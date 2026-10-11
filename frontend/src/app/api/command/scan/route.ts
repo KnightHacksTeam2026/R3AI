@@ -16,6 +16,8 @@ type MissionRequest = {
   robotZDim?: number;
   weightCapacityKg?: number;
   life?: number;
+  detectionOnly?: boolean;
+  refreshYolo?: boolean;
 };
 
 function resolveRepoRoot() {

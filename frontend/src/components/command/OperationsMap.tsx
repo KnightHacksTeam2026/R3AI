@@ -6,7 +6,7 @@ import type { GeoJSONSource, Map as MapLibreMap, Marker, StyleSpecification } fr
 import type { FeatureCollection, LineString } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { BOT_ICONS } from "./BotIcon";
-import { cleanupCoverage } from "./coverageGeometry";
+import { cleanupCoverage, scanCoverage } from "./coverageGeometry";
 import { routePosition } from "./routeGeometry";
 import type { PlaceResult } from "./placeSearch";
 import type { Coordinate, WasteObservation, RobotState, Theme } from "./types";
@@ -69,7 +69,9 @@ type OverlayData = Pick<Props, "observations" | "bots" | "selectedBotId" | "show
 function renderOverlays(instance: MapLibreMap, data: OverlayData) {
   if (!instance.isStyleLoaded()) return;
   const selected = data.bots.find(bot => bot.id === data.selectedBotId);
-  const coverage = cleanupCoverage(data.observations, data.selectedBotId);
+  const coverage = selected?.collection?.phase === "scanning" && selected.collection.scanFrames?.length
+    ? scanCoverage(selected)
+    : cleanupCoverage(data.observations, data.selectedBotId);
   if (!instance.getSource("cleanup-coverage")) {
     instance.addSource("cleanup-coverage", { type: "geojson", data: coverage });
     instance.addLayer({ id: "coverage-fill", type: "fill", source: "cleanup-coverage", paint: {

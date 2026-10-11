@@ -1,5 +1,6 @@
 import { STREET_ROUTES } from "./streetRoutes";
-import { routeFromLegs, routePosition } from "./routeGeometry";
+import { routeCircleEntryDistance, routeFromLegs, routePosition } from "./routeGeometry";
+import { coverageRadiusM } from "./coverageGeometry";
 import type { Coordinate, RobotState, WasteObservation } from "./types";
 
 // All command missions are synthetic, but movement stays constrained to known road snapshots.
@@ -34,6 +35,24 @@ let missionSequence = 0;
 
 type DemoArea = typeof DEMO_AREAS[number];
 type MissionSlice = { bot: RobotState; observations: WasteObservation[] };
+type YoloScanResult = {
+  candidateIndex: number;
+  image: string;
+  trashDetected: boolean;
+  detectedCount: number;
+  labels: string[];
+  confidence: number | null;
+  modelId: string;
+  knownTrash: boolean | null;
+  expectedCount: number | null;
+  expectedKind: string | null;
+};
+type YoloScanResponse = {
+  botId: string;
+  areaId: string;
+  scanResults: YoloScanResult[];
+  scanSummary: { scanned: number; trashDetected: number; rejected: number };
+};
 type RouteSource = RobotState["route"]["source"];
 type GeneratedObservation = WasteObservation & { accessIndex: number };
 type PlannedRun = { route: RobotState["route"]; pickupOrderIds: string[] };
@@ -194,22 +213,23 @@ function planCollectionRuns(items: GeneratedObservation[], geometry: RoadGeometr
   return { runs, leftover: [] as GeneratedObservation[] };
 }
 
-function createSyntheticMissionSlice(area: DemoArea, areaIndex: number, withHistory: boolean, missionSeed: number): MissionSlice {
+function createSyntheticMissionSlice(area: DemoArea, areaIndex: number, withHistory: boolean, missionSeed: number, scanResults?: YoloScanResult[]): MissionSlice {
   const geometry = areaGeometry(area);
   const botId = `R3-${area.id}-G01`;
-  const collectableCount = 10 + ((areaIndex + missionSeed) % 5);
-  const oversizedCount = 1 + ((areaIndex + missionSeed) % 2);
+  const collectableCount = scanResults?.length ?? 10 + ((areaIndex + missionSeed) % 5);
+  const oversizedCount = scanResults ? 0 : 1 + ((areaIndex + missionSeed) % 2);
   const collectableIndices = sampleRoadIndices(geometry.roadPath.length, collectableCount, missionSeed);
   const oversizedIndices = sampleRoadIndices(geometry.roadPath.length, oversizedCount, missionSeed * 3 + 1);
 
-  const collectableCandidates = collectableIndices.map((accessIndex, index) => {
+  const candidateObservations = collectableIndices.map((accessIndex, index) => {
+    const scan = scanResults?.[index];
     const accessPoint = geometry.roadPath[accessIndex] ?? geometry.start;
     const dimensions: [number, number, number] = [
       7 + Math.floor(seededFraction(missionSeed * 19 + index) * 5),
       6 + Math.floor(seededFraction(missionSeed * 23 + index) * 4),
       3 + Math.floor(seededFraction(missionSeed * 29 + index) * 3),
     ];
-    return buildSyntheticObservation(
+    const observation = buildSyntheticObservation(
       area,
       botId,
       `SYN-${area.id}-${missionSeed.toString().padStart(3, "0")}-C${(index + 1).toString().padStart(2, "0")}`,
@@ -220,9 +240,26 @@ function createSyntheticMissionSlice(area: DemoArea, areaIndex: number, withHist
       dimensions,
       false,
       accessIndex,
-      geometry.scanDistanceByIndex[accessIndex] ?? geometry.scanRoute.distanceM,
+      0,
     );
+    observation.scanDistanceM = routeCircleEntryDistance(
+      geometry.scanRoute,
+      [observation.longitude, observation.latitude],
+      coverageRadiusM(observation.density),
+    );
+    if (!scan) return observation;
+    return {
+      ...observation,
+      category: scan.labels.length ? scan.labels.map(label => label[0].toUpperCase() + label.slice(1)).join(" / ") : "Detected trash",
+      itemCount: scan.detectedCount,
+      confidence: scan.confidence,
+      source: "ai-inference" as const,
+      sampleImage: scan.image,
+      detectedCount: scan.detectedCount,
+      detectorModel: scan.modelId,
+    };
   }).sort((a, b) => a.accessIndex - b.accessIndex);
+  const collectableCandidates = candidateObservations.filter((_, index) => scanResults?.[index]?.trashDetected ?? true);
 
   const oversizedItems = oversizedIndices.map((accessIndex, index) => {
     const accessPoint = geometry.roadPath[accessIndex] ?? geometry.start;
@@ -312,8 +349,35 @@ function createSyntheticMissionSlice(area: DemoArea, areaIndex: number, withHist
       route,
       distanceM,
       missionStatus,
-      missionIssue: runs.length ? undefined : "human-only",
-      collection: { phase, start: geometry.start, scanRoute: geometry.scanRoute, runs, runIndex: 0 },
+      missionIssue: !runs.length && humanRequiredItems.length ? "human-only" : undefined,
+      collection: {
+        phase,
+        start: geometry.start,
+        scanRoute: geometry.scanRoute,
+        runs,
+        runIndex: 0,
+        scanStats: scanResults ? {
+          scanned: scanResults.length,
+          trashDetected: collectableCandidates.length,
+          rejected: scanResults.length - collectableCandidates.length,
+          modelId: scanResults[0]?.modelId,
+        } : undefined,
+        scanFrames: scanResults?.map((scan, index) => ({
+          candidateIndex: scan.candidateIndex,
+          image: scan.image,
+          trashDetected: scan.trashDetected,
+          detectedCount: scan.detectedCount,
+          labels: scan.labels,
+          confidence: scan.confidence,
+          scanDistanceM: candidateObservations[index]?.scanDistanceM ?? geometry.scanRoute.distanceM,
+          longitude: candidateObservations[index]?.longitude ?? geometry.start[0],
+          latitude: candidateObservations[index]?.latitude ?? geometry.start[1],
+          radiusM: candidateObservations[index] ? coverageRadiusM(candidateObservations[index].density) : 30,
+          knownTrash: scan.knownTrash,
+          expectedCount: scan.expectedCount,
+          expectedKind: scan.expectedKind,
+        })),
+      },
     },
     observations,
   };
@@ -338,7 +402,19 @@ export function createDemoState(withHistory = false): DemoState {
 }
 
 export async function hydrateDemoState(): Promise<DemoState> {
-  return buildDemoState(false, nextMissionSeed() * 100);
+  const baseSeed = nextMissionSeed() * 100;
+  try {
+    const slices = await Promise.all(DEMO_AREAS.map(async (area, areaIndex) =>
+      createSyntheticMissionSlice(area, areaIndex, false, baseSeed + areaIndex + 1, (await requestYoloScan(area)).scanResults)));
+    const observations = slices.flatMap(slice => slice.observations);
+    return {
+      bots: slices.map(slice => slice.bot),
+      observations,
+      humanRequiredItems: observations.filter(item => item.humanRequired),
+    };
+  } catch {
+    return buildDemoState(false, baseSeed);
+  }
 }
 
 export async function regenerateBotMission(botId: string): Promise<MissionSlice> {
@@ -346,7 +422,24 @@ export async function regenerateBotMission(botId: string): Promise<MissionSlice>
   if (areaIndex < 0) {
     throw new Error(`Unknown bot id: ${botId}`);
   }
-  return createSyntheticMissionSlice(DEMO_AREAS[areaIndex], areaIndex, false, nextMissionSeed() * 100 + areaIndex);
+  const area = DEMO_AREAS[areaIndex];
+  const response = await requestYoloScan(area);
+  return createSyntheticMissionSlice(area, areaIndex, false, nextMissionSeed() * 100 + areaIndex, response.scanResults);
+}
+
+async function requestYoloScan(area: DemoArea): Promise<YoloScanResponse> {
+  const response = await fetch("/api/command/scan", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      detectionOnly: true,
+      areaId: area.id,
+      areaName: area.name,
+      botId: `R3-${area.id}-G01`,
+    }),
+  });
+  if (!response.ok) throw new Error(`R3-YOLO scan failed with status ${response.status}`);
+  return response.json() as Promise<YoloScanResponse>;
 }
 
 export function replaceMissionInState(state: DemoState, mission: MissionSlice, autoStart = false): DemoState {

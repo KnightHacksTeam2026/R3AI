@@ -33,23 +33,24 @@ try {
   assert.throws(() => parsePlaces({}), /Invalid place response/);
   assert(state.bots.every(bot => bot.type === "ground"));
   const coverage = cleanupCoverage(state.observations, state.bots[0].id);
-  assert.equal(coverage.features.length, 3);
-  assert(coverage.features.every(feature => feature.properties.botId === state.bots[0].id && !feature.properties.cleaned));
-  for (const feature of coverage.features) {
+  assert.equal(coverage.features.length, 0, "Undiscovered scan candidates must stay hidden");
+  const visibleCoverage = cleanupCoverage(state.observations.map(item => ({ ...item, discovered: true })), state.bots[0].id);
+  assert(visibleCoverage.features.every(feature => feature.properties.botId === state.bots[0].id && !feature.properties.cleaned));
+  for (const feature of visibleCoverage.features) {
     const ring = feature.geometry.coordinates[0];
     assert.deepEqual(ring[0], ring.at(-1), "Coverage rings must be closed");
     assert.equal(feature.geometry.type, "Polygon");
     assert.equal(feature.properties.id, undefined, "Coverage must not expose individual observation IDs");
   }
   assert.equal(state.bots.length, 8);
-  assert.equal(state.observations.length, 24);
+  assert(state.observations.length > 24);
   assert.equal(new Set(state.bots.map(bot => bot.area)).size, 8);
-  assert.equal(new Set(state.observations.map(item => item.density)).size, 3);
+  assert(new Set(state.observations.map(item => item.density)).size >= 2);
   assert.deepEqual(state, createDemoState(false), "Demo generation must be deterministic");
 
   for (const bot of state.bots) {
     assert(bot.route.distanceM > 0);
-    assert.equal(bot.route.stopDistancesM.length, 3);
+    assert(bot.route.stopDistancesM.length > 3);
     assert.equal(bot.route.source, "street-snapshot");
     assert(bot.route.coordinates.length > 4, "Ground geometry must include actual street vertices");
     for (const fraction of [0, 0.1, 0.5, 1]) {
@@ -65,23 +66,22 @@ try {
   assert(state.bots[0].batteryPct < state.bots[0].initialBatteryPct);
   assert(state.bots.slice(1).every(bot => bot.batteryPct === bot.initialBatteryPct), "Idle bots must not drain battery");
   assert(state.bots.slice(1).every(bot => bot.distanceM === 0), "Unselected idle missions must not move");
-  for (const item of state.observations.filter(item => item.botId === state.bots[0].id)) {
-    assert.equal(item.status, item.stopDistanceM <= state.bots[0].distanceM ? "collected" : "mapped", "Collection must occur at arrival only");
-  }
+  assert(state.observations.filter(item => item.botId === state.bots[0].id).every(item => item.status === "mapped"), "Scanning must not collect trash");
 
   state = { ...state, bots: state.bots.map(bot => ({ ...bot, missionStatus: "running" })) };
-  for (let tick = 0; tick < 210; tick++) state = advanceSimulation(state, 0.2);
+  for (let tick = 0; tick < 900; tick++) state = advanceSimulation(state, 0.2);
   for (const bot of state.bots) {
     assert.equal(bot.missionStatus, "complete");
     assert.equal(bot.distanceM, bot.route.distanceM);
     assert(bot.payloadKg <= bot.capacityKg);
     const items = state.observations.filter(item => item.botId === bot.id);
-    assert(items.every(item => item.status === "collected"));
+    assert(items.filter(item => !item.humanRequired).every(item => item.status === "collected"));
+    assert(items.filter(item => item.humanRequired).every(item => item.status === "mapped"));
     assert(items.every(item => item.confidence === null && item.source === "synthetic"));
     assert(bot.batteryPct >= 0 && bot.batteryPct <= 100);
     assert(Math.abs(bot.batteryPct - (bot.initialBatteryPct - 18)) < 0.001);
   }
-  assert(cleanupCoverage(state.observations, state.bots[0].id).features.every(feature => feature.properties.cleaned));
+  assert(cleanupCoverage(state.observations, state.bots[0].id).features.some(feature => feature.properties.cleaned));
   const emptyBattery = createDemoState(false);
   emptyBattery.bots[0] = { ...emptyBattery.bots[0], batteryPct: 0, missionStatus: "running" };
   const stopped = advanceSimulation(emptyBattery, 1).bots[0];

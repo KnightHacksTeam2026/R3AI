@@ -4,7 +4,6 @@ const test = require('node:test');
 const fs = require('node:fs');
 const ts = require('typescript');
 
-// Load the existing TypeScript simulation with the project's compiler, no test dependencies.
 require.extensions['.ts'] = (module, filename) => {
   const { outputText } = ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -12,103 +11,141 @@ require.extensions['.ts'] = (module, filename) => {
   module._compile(outputText, filename);
 };
 const { regenerateBotMission, replaceMissionInState, advanceSimulation } = require('../src/components/command/demoData.ts');
+const { imageClassificationMeasurement } = require('../src/components/command/detectionMetrics.ts');
+const { routeCircleEntryDistance, routeFromLegs } = require('../src/components/command/routeGeometry.ts');
 
-function response(prefix = '') {
-  const start = [-81.3755, 28.5422];
-  const items = Array.from({ length: 10 }, (_, index) => ({
-    id: `${prefix}trash-${index}`, category: 'Mixed litter',
-    longitude: start[0] + (index + 1) * 0.001, latitude: start[1],
-    xDim: 2, yDim: 2, zDim: 2, weightKg: 2, itemCount: 1,
-    density: 'sparse', area: 'Orlando', pickupRank: index < 8 ? index + 1 : null,
-    stored: index < 8,
+function response(decisions = [true, false, true, false, true, false, true, false, true, false]) {
+  const scanResults = decisions.map((trashDetected, index) => ({
+    candidateIndex: index + 1,
+    image: `${trashDetected ? 'trash' : 'empty'}-${index}.jpeg`,
+    trashDetected,
+    detectedCount: trashDetected ? 1 : 0,
+    labels: trashDetected ? ['bottle'] : [],
+    confidence: trashDetected ? 0.8 + index / 100 : null,
+    modelId: 'Ultralytics/YOLO26/yolo26n.pt',
+    knownTrash: index !== 0,
+    expectedCount: index === 0 ? 0 : 1,
+    expectedKind: index === 0 ? 'unspecified' : 'bottle',
   }));
-  const runs = Array.from({ length: 4 }, (_, index) => {
-    const load = items.slice(index * 2, index * 2 + 2);
-    return { pickupOrderIds: load.map(item => item.id),
-      routeCoordinates: [start, ...load.map(item => [item.longitude, item.latitude])] };
-  });
   return {
-    botId: 'R3-ORL-G01', areaId: 'ORL', areaName: 'Orlando',
-    startLongitude: start[0], startLatitude: start[1], items, runs,
-    humanRequiredItemIds: items.slice(8).map(item => item.id),
-    robotState: { weightCapacityKg: 4 },
+    botId: 'R3-ORL-G01',
+    areaId: 'ORL',
+    scanResults,
+    scanSummary: {
+      scanned: scanResults.length,
+      trashDetected: decisions.filter(Boolean).length,
+      rejected: decisions.filter(value => !value).length,
+    },
   };
 }
 
-async function load(t, payload = response()) {
+async function load(t, payload = response(), autoStart = true) {
   t.mock.method(globalThis, 'fetch', async () => ({ ok: true, json: async () => payload }));
   const mission = await regenerateBotMission('R3-ORL-G01');
-  return replaceMissionInState({ bots: [mission.bot], observations: [] }, mission, true);
+  return replaceMissionInState({ bots: [mission.bot], observations: [] }, mission, autoStart);
 }
 
-test('four loads collect the same eight items, unload, and retain two human items', async t => {
-  let state = await load(t);
-  const ids = state.observations.map(item => item.id);
-  const home = [-81.3755, 28.5422];
-  state = advanceSimulation(state, 30);
-  assert.ok(state.bots[0].payloadKg > 0);
-  assert.ok(state.bots[0].payloadKg <= 4);
-  state = advanceSimulation(state, 10);
-  for (let run = 1; run <= 4; run++) {
-    const bot = state.bots[0];
-    assert.equal(bot.payloadKg, 0);
-    assert.deepEqual([bot.longitude, bot.latitude], home);
-    assert.equal(state.observations.filter(item => item.status === 'collected').length, run * 2);
-    assert.deepEqual(state.observations.map(item => item.id), ids);
-    assert.equal(bot.missionStatus, run < 4 ? 'running' : 'complete');
-    if (run < 4) {
-      assert.equal(bot.collection.runIndex, run);
-      state = advanceSimulation(state, 40);
-    }
-  }
-  assert.ok(state.bots[0].batteryPct > 0);
-  assert.equal(state.humanRequiredItems.length, 2);
-  assert.ok(state.observations.filter(item => item.humanRequired).every(item => item.status === 'mapped'));
-  assert.equal(globalThis.fetch.mock.callCount(), 1);
-  const nextMission = await regenerateBotMission('R3-ORL-G01');
-  const next = replaceMissionInState(state, nextMission, true);
-  assert.equal(next.bots[0].missionStatus, 'running');
-  assert.equal(next.humanRequiredItems.length, 2);
-});
-
-test('paused bots neither collect nor advance loads', async t => {
-  let state = await load(t);
-  state.bots[0].missionStatus = 'paused';
-  const next = advanceSimulation(state, 100);
-  assert.deepEqual(next, state);
-});
-
-test('all impossible scan terminates without collecting or auto-starting', async t => {
+test('only R3-YOLO true scans are stored as observations and pickup stops', async t => {
   const payload = response();
-  payload.runs = [];
-  payload.humanRequiredItemIds = payload.items.map(item => item.id);
-  let state = await load(t, payload);
-  assert.equal(state.bots[0].missionStatus, 'ready');
-  state.bots[0].missionStatus = 'running';
-  state = advanceSimulation(state, 1);
+  const state = await load(t, payload);
+  const positiveImages = new Set(payload.scanResults.filter(scan => scan.trashDetected).map(scan => scan.image));
+  const pickupIds = new Set(state.bots[0].collection.runs.flatMap(run => run.pickupOrderIds));
+
+  assert.equal(state.observations.length, 5);
+  assert.deepEqual(state.bots[0].collection.scanStats, {
+    scanned: 10,
+    trashDetected: 5,
+    rejected: 5,
+    modelId: 'Ultralytics/YOLO26/yolo26n.pt',
+  });
+  assert.equal(state.bots[0].collection.scanFrames.length, 10);
+  assert.equal(new Set(state.bots[0].collection.scanFrames.map(frame => frame.image)).size, 10);
+  assert.equal(state.bots[0].collection.scanFrames.filter(frame => frame.trashDetected).length, 5);
+  assert.equal(state.bots[0].collection.scanFrames.filter(frame => !frame.trashDetected).length, 5);
+  assert.equal(state.bots[0].collection.scanFrames.filter(frame => frame.knownTrash).length, 9);
+  assert.ok(state.observations.every(item => item.source === 'ai-inference'));
+  assert.ok(state.observations.every(item => positiveImages.has(item.sampleImage)));
+  assert.ok(state.observations.every(item => item.confidence !== null));
+  assert.deepEqual(pickupIds, new Set(state.observations.map(item => item.id)));
+  assert.ok(state.observations.every(item => !item.sampleImage.startsWith('empty-')));
+});
+
+test('scan completes before the bot returns to collect the stored positives', async t => {
+  let state = await load(t);
+  state = advanceSimulation(state, 28);
+  assert.equal(state.bots[0].collection.phase, 'collecting');
+  assert.ok(state.observations.every(item => item.discovered));
+  assert.ok(state.observations.every(item => item.status === 'mapped'));
+
+  for (let index = 0; index < state.bots[0].collection.runs.length; index++) {
+    state = advanceSimulation(state, 40);
+  }
   assert.equal(state.bots[0].missionStatus, 'complete');
   assert.equal(state.bots[0].payloadKg, 0);
-  assert.ok(state.observations.every(item => item.status === 'mapped'));
+  assert.ok(state.observations.every(item => item.status === 'collected'));
 });
 
-test('human-required archive survives a new scan with distinct IDs', async t => {
-  let payload = response();
-  t.mock.method(globalThis, 'fetch', async () => ({ ok: true, json: async () => payload }));
-  const first = await regenerateBotMission('R3-ORL-G01');
-  let state = replaceMissionInState({ bots: [first.bot], observations: [] }, first);
-  payload = response('new-');
-  const second = await regenerateBotMission('R3-ORL-G01');
-  state = replaceMissionInState(state, second, true);
-  assert.equal(state.humanRequiredItems.length, 4);
-  assert.equal(state.observations.length, 10);
-  assert.ok(state.observations.every(item => item.id.startsWith('new-')));
+test('scan frames and positive discoveries advance together at circle entries', async t => {
+  let state = await load(t);
+  const bot = state.bots[0];
+  const frames = [...bot.collection.scanFrames].sort((left, right) => left.scanDistanceM - right.scanDistanceM);
+  const targetDistance = frames[2].scanDistanceM + 0.1;
+  state = advanceSimulation(state, targetDistance / bot.route.distanceM * 28);
+  const scanned = frames.filter(frame => frame.scanDistanceM <= state.bots[0].distanceM);
+  assert.ok(scanned.length >= 3);
+  assert.equal(state.observations.filter(item => item.discovered).length, scanned.filter(frame => frame.trashDetected).length);
 });
 
-test('zero-distance pickups complete without looping', async t => {
-  const payload = response();
-  payload.runs.forEach(run => { run.routeCoordinates = run.routeCoordinates.map(() => [-81.3755, 28.5422]); });
-  let state = await load(t, payload);
-  for (let index = 0; index < 4; index++) state = advanceSimulation(state, 1);
+test('all-false scan creates no observations or collection route', async t => {
+  let state = await load(t, response(Array(10).fill(false)));
+  assert.equal(state.observations.length, 0);
+  assert.equal(state.bots[0].collection.runs.length, 0);
+  assert.deepEqual(state.bots[0].collection.scanStats, {
+    scanned: 10,
+    trashDetected: 0,
+    rejected: 10,
+    modelId: 'Ultralytics/YOLO26/yolo26n.pt',
+  });
+  state = advanceSimulation(state, 28);
   assert.equal(state.bots[0].missionStatus, 'complete');
-  assert.equal(state.observations.filter(item => item.status === 'collected').length, 8);
+});
+
+test('paused bots neither reveal detections nor advance', async t => {
+  const state = await load(t);
+  state.bots[0].missionStatus = 'paused';
+  assert.deepEqual(advanceSimulation(state, 100), state);
+});
+
+test('a failed detector request is reported to the caller', async t => {
+  t.mock.method(globalThis, 'fetch', async () => ({ ok: false, status: 500 }));
+  await assert.rejects(() => regenerateBotMission('R3-ORL-G01'), /R3-YOLO scan failed/);
+});
+
+test('circle entry distance fires at the radius boundary, not by route percentage', () => {
+  const route = routeFromLegs([[[-81.001, 28], [-80.999, 28]]], 'street-snapshot');
+  const entry = routeCircleEntryDistance(route, [-81, 28], 30);
+  assert.ok(entry > 60 && entry < 80, `expected circle entry near 68 m, received ${entry}`);
+  assert.ok(entry < route.distanceM / 2, 'entry must occur before reaching the circle center');
+});
+
+test('detection measurement compares YOLO trash images with developer-known image labels', () => {
+  const measurement = imageClassificationMeasurement([
+    { knownTrash: true, trashDetected: true },
+    { knownTrash: true, trashDetected: false },
+    { knownTrash: false, trashDetected: false },
+    { knownTrash: null, trashDetected: true },
+  ]);
+
+  assert.equal(measurement.evaluatedImages, 3);
+  assert.equal(measurement.knownTrashImages, 2);
+  assert.equal(measurement.predictedTrashImages, 1);
+  assert.equal(measurement.matchingImages, 2);
+  assert.equal(Math.round(measurement.accuracyPercent), 67);
+  assert.equal(measurement.imageGap, -1);
+});
+
+test('image agreement handles correct negatives and unprocessed labels', () => {
+  assert.equal(imageClassificationMeasurement([{ knownTrash: false, trashDetected: false }]).accuracyPercent, 100);
+  assert.equal(imageClassificationMeasurement([{ knownTrash: false, trashDetected: true }]).accuracyPercent, 0);
+  assert.equal(imageClassificationMeasurement([{ knownTrash: null, trashDetected: true }]).accuracyPercent, null);
 });

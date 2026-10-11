@@ -20,6 +20,9 @@ export type WasteObservation = {
   discovered: boolean;
   humanRequired?: boolean;
   dimensions?: [number, number, number];
+  sampleImage?: string;
+  detectedCount?: number;
+  detectorModel?: string;
 };
 export type BotRoute = {
   coordinates: Coordinate[];
@@ -47,6 +50,22 @@ export type RobotState = {
     phase: "scanning" | "collecting";
     start: Coordinate;
     scanRoute: BotRoute;
+    scanStats?: { scanned: number; trashDetected: number; rejected: number; modelId?: string };
+    scanFrames?: {
+      candidateIndex: number;
+      image: string;
+      trashDetected: boolean;
+      detectedCount: number;
+      labels: string[];
+      confidence: number | null;
+      scanDistanceM: number;
+      longitude: number;
+      latitude: number;
+      radiusM: number;
+      knownTrash: boolean | null;
+      expectedCount: number | null;
+      expectedKind: string | null;
+    }[];
     runIndex: number;
     runs: { route: BotRoute; pickupOrderIds: string[] }[];
   };

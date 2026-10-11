@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import styles from "./Navbar.module.css";
@@ -39,7 +40,7 @@ export default function Navbar({ actions, search }: { actions?: ReactNode; searc
   }, [menuOpen]);
   return <div className={styles.surface}>
     <Link href="/" aria-label="R3AI home" className={styles.brand}>
-      <span className={styles.mark} aria-hidden="true">R3<span className={styles.ai}>AI</span></span>
+      <Image priority src="/r3ai-recycle-logo.png" width={52} height={52} alt="" aria-hidden="true" className={styles.logo} />
     </Link>
     {search && <div className={styles.search}>{search}</div>}
     <div className={styles.navigation} ref={navigationRef} onBlur={(event) => {
