@@ -4,6 +4,13 @@
   background: #f6f7f2;
   color-scheme: light;
 }
+:global(html[data-theme="dark"]):has(.appPage), :global(html[data-theme="dark"]) body:has(.appPage),
+:global(html[data-theme="dark"]):has(.loading), :global(html[data-theme="dark"]) body:has(.loading) { background: var(--background); color-scheme: dark; }
+:global(html[data-theme="dark"]) :is(.appPage, .loading, .installDialog) { --go-ink: var(--foreground); --go-muted: var(--muted); --go-paper: var(--surface); --go-green: var(--accent); background: var(--background); color: var(--foreground); }
+:global(html[data-theme="dark"]) .installDialog { background: var(--surface); }
+:global(html[data-theme="dark"]) :is(.installDialog section p, .disclaimer, .sheetClose) { color: var(--muted); }
+:global(html[data-theme="dark"]) .installIcon { background: var(--surface-soft); color: var(--accent); }
+:global(html[data-theme="dark"]) .installDialog .primaryButton { background: #b5e3c8; color: #123d2d; }
 
 .downloadPage, .appPage, .loading, .installDialog {
   --go-ink: #152b24;

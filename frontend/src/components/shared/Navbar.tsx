@@ -1,34 +1,21 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import styles from "./Navbar.module.css";
+import ThemeSwitch from "./ThemeSwitch";
 
-export default function Navbar() {
-    const pathname = usePathname();
+const links = [{ href: "/", label: "Home" }, { href: "/command", label: "Command" }, { href: "/go", label: "Go" }];
 
-    // Landing, Command, and Go provide navigation within their own app shells.
-    if (pathname === "/" || pathname === "/command" || pathname.startsWith("/command/") || pathname === "/go" || pathname.startsWith("/go/")) {
-        return null;
-    }
-
-    return (
-        <nav aria-label="Main navigation" className="flex items-center justify-between border-b border-white/10 bg-[#101C19] px-6 py-4 text-white">
-            <Link href="/" className="text-xl font-bold tracking-tight">
-                R3<span className="text-[#C5F47B]">AI</span>
-            </Link>
-
-            <div className="flex items-center gap-5 text-sm">
-                <Link href="/" className="hover:text-[#C5F47B]">
-                    Home
-                </Link>
-                <Link href="/command" className="hover:text-[#C5F47B]">
-                    Command
-                </Link>
-                <Link href="/go" className="hover:text-[#C5F47B]">
-                    Go
-                </Link>
-            </div>
-        </nav>
-    );
+export default function Navbar({ actions, search }: { actions?: ReactNode; search?: ReactNode }) {
+  const pathname = usePathname();
+  return <div className={styles.surface}>
+    <Link href="/" aria-label="R3AI home" className={styles.brand}><span className={styles.mark} aria-hidden="true">r3</span><span className={styles.identity}>R3AI<span className={styles.subtitle}>Recognize. Recover. Restore.</span></span></Link>
+    {search && <div className={styles.search}>{search}</div>}
+    <nav aria-label="Main navigation" className={styles.links}>
+      {links.map(({ href, label }) => <Link key={href} href={href} aria-current={(pathname === href || (href !== "/" && pathname.startsWith(`${href}/`))) ? "page" : undefined}>{label}</Link>)}
+    </nav>
+    <div className={styles.actions}>{actions}<ThemeSwitch /></div>
+  </div>;
 }

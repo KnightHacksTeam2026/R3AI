@@ -9,6 +9,7 @@ import { DEFAULT_CENTER, type CleanupRoute } from "./cleanupRoutes";
 import type { Coordinate } from "../command/types";
 import type { GoPosition } from "./useGoLocation";
 import styles from "./GoExplorer.module.css";
+import useTheme from "../shared/useTheme";
 
 export type GoMapHandle = { focus: (coordinate: Coordinate) => void; fit: (route: CleanupRoute) => void; zoom: (direction: number) => void; north: () => void };
 type Props = { routes: CleanupRoute[]; selectedId: string | null; position: GoPosition | null; onSelect: (id: string) => void; onMove: (center: Coordinate) => void };
@@ -20,6 +21,7 @@ const fallbackStyle: StyleSpecification = {
 };
 
 const GoMap = forwardRef<GoMapHandle, Props>(function GoMap({ routes, selectedId, position, onSelect, onMove }, ref) {
+  const { theme } = useTheme();
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapInstance | null>(null);
   const callbacks = useRef({ onSelect, onMove });
@@ -82,6 +84,13 @@ const GoMap = forwardRef<GoMapHandle, Props>(function GoMap({ routes, selectedId
     observer.observe(container.current);
     return () => { disposed = true; window.clearTimeout(timeout); observer.disconnect(); instance.remove(); map.current = null; };
   }, [attempt]);
+
+  useEffect(() => {
+    const instance = map.current;
+    if (!ready || !instance?.getLayer("streets") || process.env.NEXT_PUBLIC_GO_MAP_STYLE_URL) return;
+    instance.setPaintProperty("streets", "raster-brightness-max", theme === "dark" ? 0.3 : 1);
+    instance.setPaintProperty("streets", "raster-saturation", theme === "dark" ? -0.85 : -0.65);
+  }, [theme, ready]);
 
   useEffect(() => {
     const instance = map.current;
