@@ -1,4 +1,4 @@
-from Logic.item import Item
+from Logic.R3_BOT.item import Item
 import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
