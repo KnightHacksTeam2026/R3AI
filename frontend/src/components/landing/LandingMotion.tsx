@@ -13,29 +13,22 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
     gsap.registerPlugin(ScrollTrigger);
     const media = gsap.matchMedia();
     media.add("(prefers-reduced-motion: no-preference)", () => {
-      const sections = element.querySelectorAll<HTMLElement>(`.${styles.intro}, .${styles.platform}, .${styles.closing}`);
+      const sections = element.querySelectorAll<HTMLElement>(`.${styles.platform}, .${styles.closing}`);
       sections.forEach(section => {
         const heading = section.querySelector(`.${styles.sectionHeading}`);
         const targets = heading ? Array.from(heading.children) : Array.from(section.children).filter(child => !child.hasAttribute("aria-hidden"));
         gsap.from(targets, { y: 38, opacity: 0, duration: 0.9, stagger: 0.12, ease: "power3.out", scrollTrigger: { trigger: section, start: "top 82%", once: true } });
       });
-      const steps = element.querySelectorAll<HTMLElement>(`.${styles.step}`);
-      steps.forEach((step, index) => {
-        gsap.from(step.children, { y: 28, opacity: 0, duration: 0.7, stagger: 0.08, delay: index * 0.08, ease: "power3.out", scrollTrigger: { trigger: step, start: "top 88%", once: true } });
-        gsap.fromTo(step, { "--step-progress": 0 }, { "--step-progress": 1, ease: "none", scrollTrigger: { trigger: step, start: "top 85%", end: "bottom 65%", scrub: 0.5 } });
+      const words = element.querySelectorAll<HTMLElement>(`.${styles.missionTagline} span`);
+      element.querySelectorAll<HTMLElement>(`.${styles.missionChapter}`).forEach((chapter, index) => {
+        gsap.fromTo(words[index], { "--word-progress": 0 }, { "--word-progress": 1, ease: "none", scrollTrigger: { trigger: chapter, start: "top 75%", end: "top 30%", scrub: 0.4 } });
+        gsap.from(chapter.children, { y: 40, opacity: 0.25, stagger: 0.08, ease: "none", scrollTrigger: { trigger: chapter, start: "top 85%", end: "top 25%", scrub: 0.5 } });
       });
       element.querySelectorAll<HTMLElement>(`.${styles.platformCard}`).forEach((card, index) => {
         gsap.from(card, { y: 60, opacity: 0, duration: 1, delay: index * 0.15, ease: "power3.out", scrollTrigger: { trigger: card, start: "top 90%", once: true } });
         gsap.from(card.querySelectorAll("li"), { x: 18, opacity: 0, stagger: 0.12, duration: 0.65, ease: "power2.out", scrollTrigger: { trigger: card, start: "top 65%", once: true } });
       });
       const rings = element.querySelector(`.${styles.closingRings}`);
-      const signal = element.querySelector<HTMLElement>(`.${styles.signalSection}`);
-      if (signal) {
-        const sequence = gsap.timeline({ scrollTrigger: { trigger: signal, start: "top 70%", end: "bottom 65%", scrub: 0.7 } });
-        sequence.fromTo(signal.querySelector("[data-signal-path]"), { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.5, ease: "none" }, 0)
-          .from(signal.querySelectorAll(`.${styles.signalNodes} article`), { y: 48, opacity: 0.2, stagger: 0.4, duration: 0.6 }, 0)
-          .fromTo(signal.querySelector(`.${styles.signalOrbit}`), { rotation: -45, scale: 0.7 }, { rotation: 45, scale: 1, duration: 1.5, ease: "none" }, 0);
-      }
       const manifesto = element.querySelector<HTMLElement>(`.${styles.manifesto}`);
       if (manifesto) {
         const words = manifesto.querySelectorAll(`.${styles.manifestoWords} span`);
