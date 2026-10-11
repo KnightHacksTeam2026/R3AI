@@ -142,7 +142,7 @@ export function startGlobeScene(canvas: HTMLCanvasElement, state: SceneState, mo
       const p = project(position);
       ctx.strokeStyle = "#c5f47b55"; ctx.beginPath(); ctx.arc(p.x, p.y, 12 + Math.sin(elapsed * 2 + index) * 3, 0, Math.PI * 2); ctx.stroke();
       mesh(position, Math.max(6, radius * 0.017), false);
-      if (progress > 0.4 && width > 600) { ctx.font = "10px Arial"; ctx.fillStyle = "#d9edce"; ctx.fillText(`R3-0${index + 1}`, p.x + 16, p.y + 3); }
+      if (progress > 0.4 && width > 600) { ctx.font = '10px "Bahnschrift", "DIN Alternate", "Segoe UI", Arial, sans-serif'; ctx.fillStyle = "#d9edce"; ctx.fillText(`R3-0${index + 1}`, p.x + 16, p.y + 3); }
     });
 
     for (let satellite = 0; satellite < 3; satellite++) {

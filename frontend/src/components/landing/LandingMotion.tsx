@@ -29,6 +29,20 @@ export default function LandingMotion({ children }: { children: ReactNode }) {
         gsap.from(card.querySelectorAll("li"), { x: 18, opacity: 0, stagger: 0.12, duration: 0.65, ease: "power2.out", scrollTrigger: { trigger: card, start: "top 65%", once: true } });
       });
       const rings = element.querySelector(`.${styles.closingRings}`);
+      const signal = element.querySelector<HTMLElement>(`.${styles.signalSection}`);
+      if (signal) {
+        const sequence = gsap.timeline({ scrollTrigger: { trigger: signal, start: "top 70%", end: "bottom 65%", scrub: 0.7 } });
+        sequence.fromTo(signal.querySelector("[data-signal-path]"), { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.5, ease: "none" }, 0)
+          .from(signal.querySelectorAll(`.${styles.signalNodes} article`), { y: 48, opacity: 0.2, stagger: 0.4, duration: 0.6 }, 0)
+          .fromTo(signal.querySelector(`.${styles.signalOrbit}`), { rotation: -45, scale: 0.7 }, { rotation: 45, scale: 1, duration: 1.5, ease: "none" }, 0);
+      }
+      const manifesto = element.querySelector<HTMLElement>(`.${styles.manifesto}`);
+      if (manifesto) {
+        const words = manifesto.querySelectorAll(`.${styles.manifestoWords} span`);
+        words.forEach((word, index) => {
+          gsap.from(word, { xPercent: index % 2 ? 18 : -18, rotation: index % 2 ? 3 : -3, opacity: 0.15, ease: "none", scrollTrigger: { trigger: word, start: "top 95%", end: "top 40%", scrub: 0.8 } });
+        });
+      }
       if (rings) {
         // Move one bounded layer only in response to scrolling. No perpetual
         // per-ring updates, oversized masks, or blurred shadow surfaces.

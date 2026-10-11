@@ -1,8 +1,15 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { gsap } from "gsap";
 import styles from "./landing.module.css";
+
+// Stable positions keep server-rendered stars identical during hydration.
+const stars = Array.from({ length: 72 }, (_, index) => ({
+  x: ((index * 73.37 + 17) % 100),
+  y: ((index * 41.63 + 9) % 100),
+  depth: 0.3 + (index % 5) * 0.17,
+}));
 
 export default function HeroBackdrop() {
   const root = useRef<HTMLDivElement>(null);
@@ -29,13 +36,26 @@ export default function HeroBackdrop() {
       const field = element.querySelector(`.${styles.auroraField}`);
       const x = gsap.quickTo(field, "x", { duration: 1.4, ease: "power3.out" });
       const y = gsap.quickTo(field, "y", { duration: 1.4, ease: "power3.out" });
+      const particles = Array.from(element.querySelectorAll<HTMLElement>(`.${styles.star}`)).map((star, index) => ({
+        ...stars[index],
+        moveX: gsap.quickTo(star, "x", { duration: 0.9, ease: "power3.out" }),
+        moveY: gsap.quickTo(star, "y", { duration: 0.9, ease: "power3.out" }),
+      }));
       const move = (event: PointerEvent) => {
         const bounds = hero.getBoundingClientRect();
         const dx = event.clientX - bounds.left - bounds.width / 2;
         const dy = event.clientY - bounds.top - bounds.height / 2;
         x(dx * 0.07); y(dy * 0.07);
+        particles.forEach(particle => {
+          const offsetX = bounds.width * particle.x / 100 - (event.clientX - bounds.left);
+          const offsetY = bounds.height * particle.y / 100 - (event.clientY - bounds.top);
+          const distance = Math.hypot(offsetX, offsetY);
+          const force = Math.max(0, 1 - distance / 180) * 42;
+          particle.moveX(dx * 0.025 * particle.depth + offsetX / Math.max(distance, 1) * force);
+          particle.moveY(dy * 0.025 * particle.depth + offsetY / Math.max(distance, 1) * force);
+        });
       };
-      const reset = () => { x(0); y(0); };
+      const reset = () => { x(0); y(0); particles.forEach(particle => { particle.moveX(0); particle.moveY(0); }); };
       hero.addEventListener("pointermove", move, { passive: true });
       hero.addEventListener("pointerleave", reset);
       return () => { hero.removeEventListener("pointermove", move); hero.removeEventListener("pointerleave", reset); };
@@ -45,6 +65,7 @@ export default function HeroBackdrop() {
 
   return <div ref={root} className={styles.heroBackdrop} aria-hidden="true">
     <div className={styles.auroraField}><span className={`${styles.aurora} ${styles.auroraOne}`} /><span className={`${styles.aurora} ${styles.auroraTwo}`} /></div>
+    <div className={styles.starfield}>{stars.map((star, index) => <span key={index} className={styles.star} style={{ left: `${star.x}%`, top: `${star.y}%`, "--star-size": `${1 + star.depth * 2}px`, opacity: 0.25 + star.depth * 0.6 } as CSSProperties} />)}</div>
     <div className={styles.backdropVignette} />
   </div>;
 }

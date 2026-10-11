@@ -20,6 +20,8 @@ export default function GoExplorer({ session, onSessionChange, installed, instal
   const feed = useCleanupRoutes();
   const map = useRef<GoMapHandle>(null);
   const search = useRef<HTMLInputElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const routeTrigger = useRef<HTMLButtonElement | null>(null);
   const focusNextLocation = useRef(false);
   const dragStart = useRef<number | null>(null);
   const dragged = useRef(false);
@@ -74,6 +76,15 @@ export default function GoExplorer({ session, onSessionChange, installed, instal
     setSelectedId(id);
     setExpanded(false);
     map.current?.fit(route);
+    requestAnimationFrame(() => heading.current?.focus());
+  }
+
+  function closeDetails() {
+    setSelectedId(null);
+    requestAnimationFrame(() => {
+      if (routeTrigger.current?.isConnected) routeTrigger.current.focus();
+      else search.current?.focus();
+    });
   }
 
   function toggleSaved(id: string) {
@@ -88,12 +99,13 @@ export default function GoExplorer({ session, onSessionChange, installed, instal
     setView("explore");
     setExpanded(false);
     setQuery("");
+    setCategory("All routes");
     if (location.position) { setCenter(location.position.coordinate); map.current?.focus(location.position.coordinate); }
     else { focusNextLocation.current = true; location.locate(); }
   }
 
   function changeView(next: typeof view) {
-    setView(next); setSelectedId(null); setQuery(""); setCategory("All routes"); setExpanded(next === "activity");
+    setView(next); setSelectedId(null); setQuery(""); setCategory("All routes"); setExpanded(next === "activity"); setLogMessage("");
   }
 
   function saveLog(event: FormEvent<HTMLFormElement>) {
@@ -114,14 +126,13 @@ export default function GoExplorer({ session, onSessionChange, installed, instal
       <Navbar actions={!installed ? <button className={styles.install} onClick={onInstall} disabled={installing} aria-label={installing ? "Opening installation" : "Get the app"}><GoIcon name="download" size={17} /><span>{installing ? "Opening…" : "Get the app"}</span></button> : undefined} />
     </header>
 
-    <div className={styles.areaPill}><span className={styles.areaDot} />{feed.samples ? "Exploring sample routes" : "Explore cleanup routes"}</div>
     <div className={styles.mapControls} aria-label="Map controls">
       <button onClick={locate} disabled={location.pending} aria-label={location.pending ? "Finding your location" : "Show my location"} className={location.enabled ? styles.locationActive : ""}><GoIcon name="locate" /></button>
       <button onClick={() => map.current?.north()} aria-label="Reset map north"><span className={styles.north}>N</span><GoIcon name="compass" size={21} /></button>
       <div className={styles.zoom}><button onClick={() => map.current?.zoom(1)} aria-label="Zoom in"><GoIcon name="plus" /></button><button onClick={() => map.current?.zoom(-1)} aria-label="Zoom out"><GoIcon name="minus" /></button></div>
     </div>
 
-    <section className={styles.sheet} data-expanded={expanded} aria-label="Explore cleanup routes" onKeyDown={event => { if (event.key === "Escape") { setSelectedId(null); setExpanded(false); search.current?.focus(); } }}>
+    <section className={styles.sheet} data-expanded={expanded} aria-label={view === "activity" ? "Cleanup activity" : view === "saved" ? "Saved routes" : "Explore cleanup routes"} onKeyDown={event => { if (event.key === "Escape") { closeDetails(); setExpanded(false); } }}>
       <button className={styles.grabber} aria-label={expanded ? "Collapse route sheet" : "Expand route sheet"} aria-expanded={expanded} aria-controls="go-sheet-content" onClick={() => { if (!dragged.current) setExpanded(value => !value); dragged.current = false; }} onPointerDown={event => { dragged.current = false; dragStart.current = event.clientY; event.currentTarget.setPointerCapture(event.pointerId); }} onPointerUp={event => { if (dragStart.current !== null && Math.abs(event.clientY - dragStart.current) > 30) { dragged.current = true; setExpanded(event.clientY < dragStart.current); } dragStart.current = null; }} onPointerCancel={() => { dragStart.current = null; dragged.current = false; }}><span /></button>
       <nav className={styles.tabs} aria-label="Go navigation">
         {([{ id: "explore", name: "Explore", icon: "compass" }, { id: "saved", name: "Saved", icon: "bookmark" }, { id: "activity", name: "My activity", icon: "log" }] as const).map(tab => <button key={tab.id} className={view === tab.id ? styles.tabActive : ""} aria-current={view === tab.id ? "page" : undefined} onClick={() => changeView(tab.id)}><GoIcon name={tab.icon} size={17} />{tab.name}</button>)}
@@ -131,30 +142,30 @@ export default function GoExplorer({ session, onSessionChange, installed, instal
         {location.error && <div className={styles.notice} role="alert">{location.error}<button onClick={locate}>Try location again</button></div>}
 
         {selected ? <div className={styles.detail}>
-          <div className={styles.detailHeading}><span className={styles.categoryLabel}>{selected.category} · {selected.sample ? "Sample route" : "Cleanup route"}</span><button className={styles.close} aria-label="Close route details" onClick={() => { setSelectedId(null); search.current?.focus(); }}><GoIcon name="close" size={20} /></button></div>
-          <h1>{selected.name}</h1><p className={styles.subtitle}><GoIcon name="pin" size={15} />{selected.area}</p>
+          <div className={styles.detailHeading}><span className={styles.categoryLabel}>{selected.category} · {selected.sample ? "Sample route" : "Cleanup route"}</span><button className={styles.close} aria-label="Close route details" onClick={closeDetails}><GoIcon name="close" size={20} /></button></div>
+          <h1 ref={heading} tabIndex={-1}>{selected.name}</h1><p className={styles.subtitle}><GoIcon name="pin" size={15} />{selected.area}</p>
           <div className={styles.stats}><div><strong>{formatDistance(routeLength(selected))}</strong><span>route length</span></div><div><strong>~{Math.max(1, Math.round(routeLength(selected) / 70))} min</strong><span>walk, before cleanup</span></div><div><strong>{selected.category === "Park" ? "Park" : selected.category === "Waterfront" ? "Waterside" : "Streets"}</strong><span>surroundings</span></div></div>
           <p className={styles.description}>{selected.description}</p>
-          {selected.sample && <p className={styles.sampleNote}>Illustrative path · No verified waste reports or access checks.</p>}
+          {selected.sample && <p className={styles.sampleNote}>Mapped path · Sample cleanup listing. Access and waste reports are unverified.</p>}
           <div className={styles.actions}><a className={styles.primary} target="_blank" rel="noopener noreferrer" href={`https://www.google.com/maps/dir/?api=1&destination=${selected.coordinates[0][1]},${selected.coordinates[0][0]}&travelmode=walking`}><GoIcon name="arrow" size={18} />Directions to start</a><button className={styles.saveButton} disabled={!savedReady} aria-pressed={saved.includes(selected.id)} onClick={() => toggleSaved(selected.id)}><GoIcon name={saved.includes(selected.id) ? "check" : "bookmark"} size={19} />{saved.includes(selected.id) ? "Saved" : "Save"}</button></div>
           <p className={styles.finePrint}>Opens walking directions in Google Maps. Cleanup time varies.</p>
           <button className={styles.textButton} onClick={() => changeView("activity")}><GoIcon name="plus" size={17} />Log a cleanup</button>
         </div> : view === "activity" ? <>
-          <p className={styles.kicker}>SMALL ACTIONS ADD UP</p><h1>Your little bit of good.</h1><p className={styles.subtitle}>A personal cleanup log, saved on this device.</p>
+          <p className={styles.kicker}>R3AI Go</p><h1 ref={heading} tabIndex={-1}>Cleanup activity</h1><p className={styles.subtitle}>A personal cleanup log, saved on this device.</p>
           <div className={styles.activityStats}><strong>{session.entries.reduce((sum, entry) => sum + entry.count, 0)}<span>items collected</span></strong><strong>{session.entries.length}<span>cleanup entries</span></strong></div>
-          <form className={styles.logForm} onSubmit={saveLog}><h2>Log a cleanup</h2><div className={styles.formRow}><label>Category<select name="category">{WASTE_CATEGORIES.map(category => <option key={category}>{category}</option>)}</select></label><label>Items<input type="number" inputMode="numeric" name="count" min={1} max={999} step={1} placeholder="0" required /></label></div><label>Note <span>(optional)</span><textarea name="note" rows={2} maxLength={240} placeholder="A little about your cleanup…" /></label><button className={styles.primary} type="submit"><GoIcon name="plus" size={18} />Add to my log</button>{logMessage && <p className={styles.finePrint} role="status">{logMessage}</p>}</form>
+          <form className={styles.logForm} onSubmit={saveLog}><h2>Log a cleanup</h2><div className={styles.formRow}><label>Category<select name="category">{WASTE_CATEGORIES.map(category => <option key={category}>{category}</option>)}</select></label><label>Items<input type="number" inputMode="numeric" name="count" min={1} max={999} step={1} placeholder="0" required /></label></div><label>Note <span>(optional)</span><textarea name="note" rows={2} maxLength={240} placeholder="Location or cleanup notes" /></label><button className={styles.primary} type="submit"><GoIcon name="plus" size={18} />Add to my log</button>{logMessage && <p className={styles.finePrint} role="status">{logMessage}</p>}</form>
           <h2 className={styles.listHeading}>Recent activity</h2>{session.entries.length ? session.entries.map(entry => <article className={styles.logEntry} key={entry.id}><span className={styles.routeIcon}><GoIcon name="check" /></span><div><strong>{entry.count} {entry.category.toLowerCase()} {entry.count === 1 ? "item" : "items"}</strong><small>{new Date(entry.createdAt).toLocaleDateString()}</small>{entry.note && <p>{entry.note}</p>}</div></article>) : <p className={styles.finePrint}>Your first cleanup will appear here.</p>}
         </> : <>
-          <div className={styles.titleRow}><div><p className={styles.kicker}>{view === "saved" ? "GOOD PLACES, KEPT CLOSE" : "GO OUT. DO A LITTLE GOOD."}</p><h1>{view === "saved" ? "Your saved routes" : "A cleaner corner of the world."}</h1></div><span className={styles.headingIcon}><GoIcon name={view === "saved" ? "bookmark" : "leaf"} size={25} /></span></div>
+          <div className={styles.titleRow}><div><p className={styles.kicker}>{"R3AI Go"}</p><h1 ref={heading} tabIndex={-1}>{view === "saved" ? "Saved routes" : "Explore cleanup routes"}</h1></div></div>
           <label className={styles.search}><GoIcon name="search" size={20} /><input ref={search} value={query} onChange={event => setQuery(event.target.value)} placeholder="Search routes or neighborhoods" aria-label="Search cleanup routes by name or neighborhood" />{query && <button aria-label="Clear search" onClick={() => { setQuery(""); search.current?.focus(); }}><GoIcon name="close" size={17} /></button>}</label>
           <div className={styles.filters} aria-label="Route categories">{["All routes", "Park", "Waterfront", "Neighborhood"].map(item => <button key={item} aria-pressed={category === item} onClick={() => setCategory(item)}>{item === "Park" ? "Parks" : item}</button>)}</div>
-          {view === "explore" && <div className={styles.locationCard}><span className={styles.locationIcon}><GoIcon name="locate" size={21} /></span><div><strong>{location.pending ? "Finding your location…" : location.enabled && location.position ? "Your location is on" : "Find your next little adventure"}</strong><p>{location.position ? `Accuracy about ${Math.round(location.position.accuracy)} m. Location stays in this app.` : "Use your location to explore routes nearby."}</p>{location.enabled && <button className={styles.textButton} onClick={() => { focusNextLocation.current = false; location.stop(); }}>Turn location off</button>}</div><button className={styles.locationButton} disabled={location.pending} onClick={locate}>{location.position ? "Recenter" : "Locate me"}</button></div>}
-          <div className={styles.listHeader}><h2>{view === "saved" ? "Ready when you are" : "Around this area"}</h2><span aria-live="polite">{feed.loading ? "Loading…" : `${results.length} ${results.length === 1 ? "route" : "routes"}`}</span></div>
+          {view === "explore" && <div className={styles.locationCard}><span className={styles.locationIcon}><GoIcon name="locate" size={21} /></span><div><strong>{location.pending ? "Finding your location…" : location.enabled && location.position ? "Your location is on" : "Find routes near you"}</strong><p>{location.position ? `Accuracy about ${Math.round(location.position.accuracy)} m. Location stays in this app.` : "Use your location to explore routes nearby."}</p>{location.enabled && <button className={styles.textButton} onClick={() => { focusNextLocation.current = false; location.stop(); }}>Turn location off</button>}</div><button className={styles.locationButton} disabled={location.pending} onClick={locate}>{location.position ? "Recenter" : "Locate me"}</button></div>}
+          <div className={styles.listHeader}><h2>{view === "saved" ? "Your routes" : "Nearby routes"}</h2><span aria-live="polite">{feed.loading ? "Loading…" : `${results.length} ${results.length === 1 ? "route" : "routes"}`}</span></div>
           <p className={styles.listHint}>{view === "saved" ? "Saved on this device · distances from map center" : "Within 5 km of map center · nearest start first"}</p>
-          {feed.error ? <div className={styles.empty}><GoIcon name="compass" size={30} /><h3>Let’s try that again</h3><p>{feed.error}</p><button className={styles.primary} onClick={feed.retry}>Reload routes</button></div> : feed.loading ? <div className={styles.skeleton} role="status">Finding cleanup routes…</div> : results.length ? <div className={styles.routeList}>{results.map(({ route, distance }) => <button className={styles.routeCard} key={route.id} onClick={() => select(route.id)}><span className={styles.routeIcon} data-category={route.category}><GoIcon name={route.category === "Waterfront" ? "water" : route.category === "Park" ? "leaf" : "pin"} size={25} /></span><span className={styles.routeBody}><span className={styles.routeCategory}>{route.category}{route.sample && " · SAMPLE"}</span><strong>{route.name}</strong><span className={styles.routeMeta}>{formatDistance(routeLength(route))} walk <i />{formatDistance(distance)} to start</span><small>{route.area}</small></span><GoIcon name="chevron" size={18} /></button>)}</div> : <div className={styles.empty}><GoIcon name={view === "saved" ? "bookmark" : "compass"} size={32} /><h3>{view === "saved" ? "Keep a good place in mind." : "A fresh place to explore."}</h3><p>{view === "saved" ? "Save a route from its details to find it here." : query || category !== "All routes" ? "No routes match these filters. Try another name or category." : "There are no listed cleanup routes within 5 km of this map center. Move the map to explore another area."}</p>{(query || category !== "All routes") && <button className={styles.textButton} onClick={() => { setQuery(""); setCategory("All routes"); }}>Clear filters</button>}{feed.samples && view === "explore" && <button className={styles.primary} onClick={() => { setQuery(""); setCategory("All routes"); map.current?.focus(DEFAULT_CENTER); }}>Explore Orlando samples</button>}</div>}
+          {feed.error ? <div className={styles.empty}><GoIcon name="compass" size={30} /><h3>Routes unavailable</h3><p>{feed.error}</p><button className={styles.primary} onClick={feed.retry}>Reload routes</button></div> : feed.loading ? <div className={styles.skeleton} role="status">Finding cleanup routes…</div> : results.length ? <div className={styles.routeList}>{results.map(({ route, distance }) => <button className={styles.routeCard} key={route.id} onClick={event => { routeTrigger.current = event.currentTarget; select(route.id); }}><span className={styles.routeIcon} data-category={route.category}><GoIcon name={route.category === "Waterfront" ? "water" : route.category === "Park" ? "leaf" : "pin"} size={25} /></span><span className={styles.routeBody}><span className={styles.routeCategory}>{route.category}{route.sample && " · SAMPLE"}</span><strong>{route.name}</strong><span className={styles.routeMeta}>{formatDistance(routeLength(route))} walk <i />{formatDistance(distance)} to start</span><small>{route.area}</small></span><GoIcon name="chevron" size={18} /></button>)}</div> : <div className={styles.empty}><GoIcon name={view === "saved" ? "bookmark" : "compass"} size={32} /><h3>{view === "saved" ? "No saved routes" : "No routes found"}</h3><p>{view === "saved" ? "Save a route from its details to find it here." : query || category !== "All routes" ? "No routes match these filters. Try another name or category." : "There are no listed cleanup routes within 5 km of this map center. Move the map to explore another area."}</p>{(query || category !== "All routes") && <button className={styles.textButton} onClick={() => { setQuery(""); setCategory("All routes"); }}>Clear filters</button>}{feed.samples && view === "explore" && <button className={styles.primary} onClick={() => { setQuery(""); setCategory("All routes"); map.current?.focus(DEFAULT_CENTER); }}>Explore Orlando samples</button>}</div>}
           {feed.samples && <p className={styles.sampleNote}>Sample routes for exploring Go. Real cleanup listings aren’t connected yet.</p>}
         </>}
-        <footer className={styles.sheetFooter}><GoIcon name="leaf" size={14} /><span>Small steps. A shared planet.</span><Link href="/command">Command <GoIcon name="arrow" size={13} /></Link></footer>
+        <footer className={styles.sheetFooter}><GoIcon name="leaf" size={14} /><span>R3AI Go</span><Link href="/command">Command <GoIcon name="arrow" size={13} /></Link></footer>
       </div>
     </section>
   </div>;

@@ -3,6 +3,7 @@
   --nav-muted: #607466;
   --nav-border: #c9d5c780;
   --nav-active: #e2eddb;
+  --nav-surface: #f8fbf3;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -15,13 +16,19 @@
   color: var(--nav-text);
   box-shadow: 0 8px 32px #10281d14;
   backdrop-filter: blur(24px);
-  font-family: var(--font-geist-sans), sans-serif;
+  -webkit-backdrop-filter: blur(24px);
+  font-family: var(--font-site);
 }
-:global(html[data-theme="dark"]) .surface { --nav-text: #edf4e8; --nav-muted: #a6b9ad; --nav-border: #d4e5d52b; --nav-active: #c5f47b20; background: #101c19ed; }
-.brand { display: flex; align-items: center; gap: 12px; margin-right: auto; text-decoration: none; }
-.mark { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px; background: #266c50; color: #f1ffeb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 29px; line-height: 1; font-weight: 600; letter-spacing: -1.5px; }
-.identity { font-size: 14px; font-weight: 600; white-space: nowrap; }
-.subtitle { display: block; margin-top: 2px; color: var(--nav-muted); font-size: 10px; font-weight: 400; }
+:global(html[data-theme="dark"]) .surface { --nav-text: #edf4e8; --nav-muted: #a6b9ad; --nav-border: #d4e5d52b; --nav-active: #c5f47b20; --nav-surface: #101c19; background: #101c19ed; }
+.navigation { position: relative; flex-shrink: 0; }
+.menuToggle { display: none; width: 44px; height: 44px; align-items: center; justify-content: center; border: 1px solid var(--nav-border); border-radius: 12px; background: var(--nav-active); color: var(--nav-text); cursor: pointer; }
+.brand { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; flex-shrink: 0; min-height: 44px; margin-right: auto; text-decoration: none; }
+.mark { position: relative; display: block; color: var(--nav-text); font-family: var(--font-site); font-size: 42px; line-height: 1; font-weight: 700; letter-spacing: -2px; white-space: nowrap; }
+.ai { color: #247653; }
+:global(html[data-theme="dark"]) .ai { color: #c5f47b; }
+.mark::after { content: "R3AI"; position: absolute; inset: 0; pointer-events: none; color: transparent; background: linear-gradient(110deg, transparent 35%, #ffffffee 49%, transparent 63%); background-size: 300% 100%; background-position: 100% 0; background-clip: text; -webkit-background-clip: text; opacity: 0; }
+.brand:hover .mark::after, .brand:focus-visible .mark::after { animation: wordmarkSweep 1.1s ease-out; }
+@keyframes wordmarkSweep { 0% { background-position: 100% 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { background-position: 0% 0; opacity: 0; } }
 .links { display: flex; flex-shrink: 0; gap: 4px; }
 .links a { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 12px; border-radius: 12px; font-size: 12px; color: var(--nav-muted); transition: background 150ms, color 150ms; }
 .links a:hover, .links a[aria-current="page"] { background: var(--nav-active); color: var(--nav-text); }
@@ -34,13 +41,16 @@
 }
 .surface :focus-visible { outline: 2px solid #4a966e; outline-offset: 3px; }
 @media (max-width: 380px) {
-  .surface .mark { width: 36px; height: 36px; font-size: 25px; }
-  .surface .links a { padding-inline: 4px; }
+  .surface .mark { font-size: 26px; letter-spacing: -1.4px; }
 }
-@media (max-width: 1099px) { .identity { display: none; } }
+@media (max-width: 1099px) { .mark { font-size: 36px; } }
 @media (max-width: 639px) {
   .surface { gap: 6px; padding: 8px; }
-  .links { gap: 0; }
-  .links a { padding: 0 6px; }
+  .menuToggle { display: flex; }
+  .links { display: none; position: absolute; top: calc(100% + 12px); right: 0; z-index: 50; width: 180px; padding: 6px; border: 1px solid var(--nav-border); border-radius: 16px; background: var(--nav-surface); box-shadow: 0 12px 32px #10281d26; }
+  .links[data-open="true"] { display: flex; flex-direction: column; }
+  .links a { justify-content: flex-start; padding: 0 12px; font-size: 14px; }
   .actions { gap: 4px; padding-left: 4px; }
 }
+@media (min-width: 381px) and (max-width: 639px) { .mark { font-size: 32px; letter-spacing: -1.5px; } }
+@media (prefers-reduced-motion: reduce) { .brand:hover .mark::after, .brand:focus-visible .mark::after { animation: none; } }
