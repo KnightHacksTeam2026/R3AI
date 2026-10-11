@@ -111,7 +111,8 @@ export default function CommandPage() {
           return bot;
         }
         const paused = bot.missionStatus === "running";
-        return { ...bot, missionStatus: paused ? "paused" : "running", status: paused ? "paused" : "collecting" };
+        const nextStatus = bot.collection?.phase === "scanning" ? "scanning" : "collecting";
+        return { ...bot, missionStatus: paused ? "paused" : "running", status: paused ? "paused" : nextStatus };
       }),
     }));
   }

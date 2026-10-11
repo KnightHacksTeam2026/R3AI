@@ -7,7 +7,7 @@ export default function PlacePanel({ place, bots, observations, onBot, onClose }
 }) {
   const relevant = botsForPlace(place, bots);
   const ids = new Set(relevant.map(bot => bot.id));
-  const waste = observations.filter(item => ids.has(item.botId));
+  const waste = observations.filter(item => ids.has(item.botId) && item.discovered);
   const collected = waste.filter(item => item.status === "collected").reduce((sum, item) => sum + item.massKg, 0);
   const remaining = waste.filter(item => item.status !== "collected").reduce((sum, item) => sum + item.massKg, 0);
   return <GlassPanel className="p-4 sm:p-5">

@@ -4,8 +4,9 @@ import type { WasteObservation } from "./types";
 export default function ObservationsPanel({ observations, area, botId, visible, onShow }: {
   observations: WasteObservation[]; area: string; botId: string; visible: boolean; onShow: () => void;
 }) {
-  const categories = [...new Set(observations.map(item => item.category))].map(category => {
-    const items = observations.filter(item => item.category === category);
+  const discovered = observations.filter(item => item.discovered);
+  const categories = [...new Set(discovered.map(item => item.category))].map(category => {
+    const items = discovered.filter(item => item.category === category);
     return { category, mappedKg: items.reduce((sum, item) => sum + item.massKg, 0), cleanedKg: items.filter(item => item.status === "collected").reduce((sum, item) => sum + item.massKg, 0) };
   });
   return <GlassPanel className="p-4 sm:p-5">
