@@ -13,14 +13,9 @@ import OperationsMap, { type OperationsMapHandle } from "@/components/command/Op
 import RobotPanel from "@/components/command/RobotPanel";
 import TelemetryPanel from "@/components/command/TelemetryPanel";
 import UniverseBackdrop from "@/components/command/UniverseBackdrop";
-<<<<<<< HEAD
 import { advanceSimulation, createDemoState, hydrateDemoState, regenerateBotMission, replaceMissionInState } from "@/components/command/demoData";
-import type { Coordinate, Theme } from "@/components/command/types";
-=======
-import { advanceSimulation, createDemoState } from "@/components/command/demoData";
 import type { Coordinate } from "@/components/command/types";
 import useTheme from "@/components/shared/useTheme";
->>>>>>> 61bf9d9f389f2236731a987d674caf98015afe49
 import styles from "./command.module.css";
 
 export default function CommandPage() {
@@ -41,24 +36,11 @@ export default function CommandPage() {
   const [showBots, setShowBots] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [mobilePanel, setMobilePanel] = useState<"bots" | "mission" | "telemetry" | null>(null);
+  const [resettingBotId, setResettingBotId] = useState<string | null>(null);
   const robot = demo.bots.find(bot => bot.id === selectedBotId)!;
   const assigned = useMemo(() => demo.observations.filter(item => item.botId === selectedBotId), [demo.observations, selectedBotId]);
   const runningCount = demo.bots.filter(bot => bot.missionStatus === "running").length;
   const running = runningCount > 0;
-
-  useEffect(() => {
-<<<<<<< HEAD
-    let saved: string | null = null;
-    try { saved = localStorage.getItem("r3ai-command-theme"); } catch { /* Optional preference. */ }
-    const preference = saved === "light" || saved === "dark" ? saved : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    const timer = window.setTimeout(() => setTheme(preference), 0);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  function changeTheme(next: Theme) {
-    setTheme(next);
-    try { localStorage.setItem("r3ai-command-theme", next); } catch { /* Themes still work without storage. */ }
-  }
 
   useEffect(() => {
     let cancelled = false;
@@ -87,8 +69,6 @@ export default function CommandPage() {
   }, [demo.bots]);
 
   useEffect(() => {
-=======
->>>>>>> 61bf9d9f389f2236731a987d674caf98015afe49
     if (!running) return;
     let previous = performance.now();
     const formatter = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -123,29 +103,36 @@ export default function CommandPage() {
 
   function closePlace() { setPlace(null); mapRef.current?.focusBot(robot); }
 
-<<<<<<< HEAD
   function toggleMission() {
-    setDemo(current => ({ ...current, bots: current.bots.map(bot => {
-      if (bot.id !== selectedBotId || bot.missionStatus === "complete" || bot.batteryPct <= 0 || bot.route.source === "unverified-preview") return bot;
-      const paused = bot.missionStatus === "running";
-      return { ...bot, missionStatus: paused ? "paused" : "running", status: paused ? "paused" : "collecting" };
-    }) }));
+    setDemo(current => ({
+      ...current,
+      bots: current.bots.map(bot => {
+        if (bot.id !== selectedBotId || bot.missionStatus === "complete" || bot.batteryPct <= 0 || bot.route.source === "unverified-preview") {
+          return bot;
+        }
+        const paused = bot.missionStatus === "running";
+        return { ...bot, missionStatus: paused ? "paused" : "running", status: paused ? "paused" : "collecting" };
+      }),
+    }));
   }
 
   async function resetMission() {
+    setResettingBotId(selectedBotId);
     try {
       const mission = await regenerateBotMission(selectedBotId);
       setDemo(current => replaceMissionInState(current, mission));
       refreshingBots.current.delete(selectedBotId);
     } catch {
       // Keep this scan and its human-required list intact if the backend fails.
+    } finally {
+      setResettingBotId(current => current === selectedBotId ? null : current);
     }
   }
 
-=======
->>>>>>> 61bf9d9f389f2236731a987d674caf98015afe49
   const botsPanel = <RobotPanel bots={demo.bots} mapCenter={mapCenter} selectedId={selectedBotId} onSelect={selectBot} />;
-  const missionPanel = place ? <PlacePanel place={place} bots={demo.bots} observations={demo.observations} onBot={selectBot} onClose={closePlace} /> : <MissionPanel observations={assigned} robot={robot} />;
+  const missionPanel = place
+    ? <PlacePanel place={place} bots={demo.bots} observations={demo.observations} onBot={selectBot} onClose={closePlace} />
+    : <MissionPanel observations={assigned} robot={robot} onToggleMission={toggleMission} onReset={resetMission} resetting={resettingBotId === selectedBotId} />;
   const botTelemetryPanel = <BotTelemetryPanel robot={robot} />;
 
   return (

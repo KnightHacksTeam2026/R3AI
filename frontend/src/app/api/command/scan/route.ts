@@ -3,8 +3,6 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-
 type MissionRequest = {
   areaId?: string;
   areaName?: string;
@@ -35,7 +33,7 @@ function runMissionScan(payload: MissionRequest) {
     const repoRoot = resolveRepoRoot();
     const scriptPath = path.join(repoRoot, "Logic", "R3_BOT", "mission_scan.py");
     const pythonCommand = process.env.PYTHON ?? "python";
-    const child = spawn(pythonCommand, [scriptPath], { cwd: repoRoot });
+    const child = spawn(/* turbopackIgnore: true */ pythonCommand, [scriptPath], { cwd: repoRoot });
 
     let stdout = "";
     let stderr = "";
